@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: pontual-monitor-api
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  main:
+    banner-mode: console

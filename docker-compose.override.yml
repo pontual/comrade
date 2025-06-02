@@ -1,0 +1,12 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_USER: UserPontual
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: pontualdb
+
+  pontual-monitor-app:
+    environment:
+      POSTGRES_USER: UserPontual
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: pontualdb
