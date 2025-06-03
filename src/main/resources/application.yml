@@ -10,6 +10,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    open-in-view: false
 
   main:
     banner-mode: console
+
+  flyway:
+    enabled: true
+    schemas: public
+    locations: classpath:db/migration
