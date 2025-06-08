@@ -29,7 +29,7 @@ public class UserApplicationService {
     public UserResponseDTO createUser(UserRequestDTO userRequest) {
 
         Person person = personMapper.toEntity(userRequest);
-
+        userDomainService.verifyIfPersonExists(userRequest.getDocument());
         log.info("Creating person: {}", person);
         personRepository.save(person);
         log.info("Person created: {}", person);
