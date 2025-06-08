@@ -8,5 +8,9 @@ spring:
     hibernate:
       ddl-auto: update
 
-  main:
-    banner-mode: console
+security:
+  jwt:
+    secret: No5JpJ2hqsbTrACMBLeASLjBq+t4RqI427skYce3CZA=
+
+server:
+  port: 8081

@@ -19,3 +19,18 @@ spring:
     enabled: true
     schemas: public
     locations: classpath:db/migration
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+
+springdoc:
+  paths-to-exclude: /actuator/**, /error
+
+server:
+  servlet:
+    context-path: /pontual/api/v1
+
+logging:
+  level:
+    org.springframework.security: INFO
