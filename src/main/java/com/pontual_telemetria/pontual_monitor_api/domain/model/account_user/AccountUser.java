@@ -1,7 +1,7 @@
-package com.pontual_telemetria.pontual_monitor_api.domain.account_user;
+package com.pontual_telemetria.pontual_monitor_api.domain.model.account_user;
 
-import com.pontual_telemetria.pontual_monitor_api.domain.person.Person;
-import com.pontual_telemetria.pontual_monitor_api.utils.Constants;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
+import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.Constants;
 import jakarta.persistence.*;
 import lombok.*;
 

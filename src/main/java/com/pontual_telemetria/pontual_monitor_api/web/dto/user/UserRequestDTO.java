@@ -1,9 +1,10 @@
-package com.pontual_telemetria.pontual_monitor_api.dto.user;
+package com.pontual_telemetria.pontual_monitor_api.web.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 public class UserRequestDTO {
@@ -23,6 +24,9 @@ public class UserRequestDTO {
     private Boolean isCreateAccountUser;
 
     private String username;
+
+    @ToString.Exclude
     private String password;
+
     private String role;
 }

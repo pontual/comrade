@@ -1,6 +1,6 @@
-package com.pontual_telemetria.pontual_monitor_api.repository;
+package com.pontual_telemetria.pontual_monitor_api.domain.repository;
 
-import com.pontual_telemetria.pontual_monitor_api.domain.person.Person;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
