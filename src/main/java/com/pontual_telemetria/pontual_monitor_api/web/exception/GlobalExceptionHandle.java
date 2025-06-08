@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-//Incluir @Hidden após instalado o swagger
+
 @RestControllerAdvice
 public class GlobalExceptionHandle {
 
