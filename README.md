@@ -16,6 +16,7 @@ Sistema de monitoramento e visualização de dados para a **Pontual Telemetria e
 ---
 
 ## 🏗️ Estrutura do Projeto
+```bash
 
 pontual-monitor-api/
 ├── Dockerfile
@@ -28,6 +29,8 @@ pontual-monitor-api/
 ├── target/
 │ └── pontual-monitor-api-0.0.1-SNAPSHOT.jar
 └── src/
+
+```
 
 ---
 
