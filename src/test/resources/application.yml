@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: pontual-monitor-api
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  main:
+    banner-mode: console
+
+  flyway:
+    enabled: true
+    schemas: public
+    locations: classpath:db/migration
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+
+springdoc:
+  paths-to-exclude: /actuator/**, /error
+
+server:
+  servlet:
+    context-path: /pontual/api/v1
+
+logging:
+  level:
+    org.springframework.security: INFO
