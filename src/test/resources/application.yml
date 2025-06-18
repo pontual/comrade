@@ -20,6 +20,15 @@ spring:
     schemas: public
     locations: classpath:db/migration
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: full
+
 security:
   jwt:
     secret: ${JWT_SECRET}
@@ -31,6 +40,15 @@ server:
   servlet:
     context-path: /pontual/api/v1
 
+sgman:
+  client:
+    unit: ${UNIT}
+    url: https://get.api.sismetro.com
+  token:
+    solicitantes: ${KEY_SOLICITANTES}
+    patrimonio: ${KEY_PATRIMONIOS}
+
 logging:
   level:
+    feign: DEBUG
     org.springframework.security: INFO

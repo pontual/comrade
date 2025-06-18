@@ -13,4 +13,7 @@ public class Constants {
     //TABLES
     public static final String TABLE_PERSON = "person";
     public static final String TABLE_ACCOUNT_USER = "account_user";
+
+    //ERRORS
+    public static final String SGMAN_ERROR_MESSAGE = "Erro ao realizar consulta SGMAN: ";
 }
