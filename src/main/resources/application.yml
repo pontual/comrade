@@ -32,6 +32,11 @@ spring:
 security:
   jwt:
     secret: ${JWT_SECRET}
+    access-expiration-ms: 900000 #15 minutes
+    refresh-expiration-ms: 604800000 #7 dias
+    cookie:
+      secure: true
+      same-site: "Lax"
 
 springdoc:
   paths-to-exclude: /actuator/**, /error

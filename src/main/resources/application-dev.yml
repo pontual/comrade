@@ -13,6 +13,9 @@ spring:
 security:
   jwt:
     secret: ${JWT_SECRET}
+    cookie:
+      secure: false
+      same-site: "Strict"
 
 server:
   port: 8081

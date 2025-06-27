@@ -1,5 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.infrastructure.security;
 
+import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.CookieUtil;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +23,7 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private final CustomUserDetailService userDetailsService;
 
     @Override
@@ -29,7 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = extractAccessTokenFromCookies(request);
+        String accessToken = cookieUtil.getCookieValue(request, "accessToken");
 
         if(accessToken != null && jwtUtil.isTokenValid(accessToken)) {
             String username = jwtUtil.extractUsername(accessToken);
@@ -48,23 +50,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String extractAccessTokenFromCookies(HttpServletRequest request){
-        if(request.getCookies() != null) {
-            for(var cookie: request.getCookies()) {
-                if("accessToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-
-        //for Swagger tests
-        String authHeader = request.getHeader("Authorization");
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-
-        return null;
     }
 }
