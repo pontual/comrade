@@ -19,11 +19,11 @@ public class AuthDomainService {
         AccountUser user = userRepository.findByUsername(username);
 
         if(user == null) {
-            throw new PontualMonitorException("Usuário não encontrado", "USER_NOT_FOUND", HttpStatus.BAD_REQUEST, "Nenhum usuário foi encontrado para o username informado");
+            throw new PontualMonitorException("Usuário não encontrado", "USER_NOT_FOUND", HttpStatus.BAD_REQUEST, "O usuário informado não foi encontrado.");
         }
 
         if(!passwordEncoder.matches(password, user.getPassword())) {
-            throw new PontualMonitorException("Senha inválida", "WRONG_PASSWORD", HttpStatus.UNAUTHORIZED, "A senha informada é inválida");
+            throw new PontualMonitorException("Senha inválida", "WRONG_PASSWORD", HttpStatus.UNAUTHORIZED, "Senha incorreta.");
         }
 
         return user;

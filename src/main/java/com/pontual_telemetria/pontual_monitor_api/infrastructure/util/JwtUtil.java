@@ -18,17 +18,34 @@ public class JwtUtil {
     @Value("${security.jwt.secret}")
     private String secretKey;
 
+    @Value("${security.jwt.access-expiration-ms}")
+    private long accessTokenExpirationTime;
+
+    @Value("${security.jwt.refresh-expiration-ms}")
+    private long refreshTokenExpirationTime;
+
+    public static final String ROLES = "roles";
+
     private Key getKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String generateToken(String username, List<String> roles) {
-        long expirationTime = 1000L * 60 * 60 * 8; // 8 horas
+    public String generateAccessToken(String username, List<String> roles) {
         return Jwts.builder()
                 .subject(username)
-                .claim("roles", roles)
+                .claim(ROLES, roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
+                .signWith(getKey())
+                .compact();
+    }
+
+    public String generateTokenFromRefreshToken(String username, List<String> roles) {
+        return Jwts.builder()
+                .subject(username)
+                .claim(ROLES, roles)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
                 .signWith(getKey())
                 .compact();
     }
@@ -47,7 +64,7 @@ public class JwtUtil {
     }
 
     public List<String> extractRoles(String token) {
-        List<?> rawRoles = getClaims(token).get("roles", List.class);
+        List<?> rawRoles = getClaims(token).get(ROLES, List.class);
         return rawRoles.stream()
                 .map(Object::toString)
                 .toList();

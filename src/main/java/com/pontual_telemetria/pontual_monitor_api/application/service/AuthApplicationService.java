@@ -25,7 +25,7 @@ public class AuthApplicationService {
         log.info("Finalizada a autenticação do usuário={}", authRequestDTO.getUsername());
 
         log.info("Gerando token de acesso");
-        String token = jwtUtil.generateToken(user.getUsername(), List.of(user.getRole()));
+        String token = jwtUtil.generateAccessToken(user.getUsername(), List.of(user.getRole()));
         log.info("Token de acesso gerado com sucesso");
 
         return new AuthResponseDTO(
@@ -38,5 +38,12 @@ public class AuthApplicationService {
                 user.getPerson().getEmail(),
                 user.getPerson().getPhone()
         );
+    }
+
+    public String refreshToken(String username, List<String> roles) {
+        log.info("Gerando token de renovação de acesso");
+        String refreshToken = jwtUtil.generateTokenFromRefreshToken(username, roles);
+        log.info("Token de renovação de acesso gerado com sucesso");
+        return refreshToken;
     }
 }
