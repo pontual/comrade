@@ -48,6 +48,15 @@ public class CookieUtil {
                 .build();
     }
 
+    public ResponseCookie createSessionCookie(String name, String value){
+        return ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(jwtCookieProperties.isSecure())
+                .sameSite(jwtCookieProperties.getSameSite())
+                .path("/")
+                .build();
+    }
+
     public ResponseCookie expireCookie(String name) {
         return ResponseCookie.from(name, "")
                 .httpOnly(true)

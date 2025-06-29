@@ -61,7 +61,14 @@ public class AuthController {
         var response = authApplicationService.authenticateUser(authRequestDTO);
         String refreshToken = authApplicationService.refreshToken(response.getUsername(), List.of(response.getRole()));
         ResponseCookie accessCookie = cookieUtil.createCookie(CookieUtil.ACCESS_TOKEN_COOKIE, response.getToken(), Duration.ofMinutes(15));
-        ResponseCookie refreshCookie = cookieUtil.createCookie(CookieUtil.REFRESH_TOKEN_COOKIE, refreshToken, Duration.ofDays(7));
+
+        ResponseCookie refreshCookie;
+
+        if(authRequestDTO.isRememberMe()) {
+            refreshCookie = cookieUtil.createCookie(CookieUtil.REFRESH_TOKEN_COOKIE, refreshToken, Duration.ofDays(15));
+        } else {
+            refreshCookie = cookieUtil.createSessionCookie(CookieUtil.REFRESH_TOKEN_COOKIE, refreshToken);
+        }
 
         CookieUtil.attachCookies(httpResponse, accessCookie, refreshCookie);
 
