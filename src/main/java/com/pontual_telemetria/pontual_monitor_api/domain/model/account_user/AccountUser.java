@@ -29,6 +29,9 @@ public class AccountUser {
     @Column(nullable = false, length = 30)
     private String role;
 
+    @Column(nullable = false)
+    private boolean enabled;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;

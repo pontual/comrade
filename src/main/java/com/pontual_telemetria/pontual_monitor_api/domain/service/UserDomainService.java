@@ -6,7 +6,9 @@ import com.pontual_telemetria.pontual_monitor_api.domain.model.account_user.Acco
 import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.PersonRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UserRepository;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.user.AccountUserDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.user.UserRequestDTO;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,27 @@ public class UserDomainService {
                 .password(passwordEncoder.encode(userRequest.getPassword()))
                 .role(userRequest.getRole())
                 .person(person)
+                .enabled(userRequest.isEnabled())
                 .build();
+    }
+
+    public void updateUser(AccountUserDTO accountUserDTO) {
+        AccountUser user = userRepository.findById(accountUserDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Conta de usuário não encontrada"));
+
+        if(!user.getUsername().equals(accountUserDTO.getUsername())){
+            verifyIfUsernameExists(accountUserDTO.getUsername());
+        }
+
+        user.setUsername(accountUserDTO.getUsername());
+        user.setRole(accountUserDTO.getRole());
+        user.setEnabled(accountUserDTO.getEnabled());
+    }
+
+    public void deleteUser(Long id) {
+        AccountUser user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Conta de usuário não encontrada"));
+        userRepository.delete(user);
     }
 
     public void verifyIfPersonExists(String document){
