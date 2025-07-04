@@ -42,11 +42,11 @@ public class UserController {
     })
     @GetMapping("/account-users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<AccountUserDetailsDTO>> getAllUsersPaginated(
+    public ResponseEntity<Page<AccountUserDetailsDTO>> getAllPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(userApplicationService.getAllUsersPaginated(page, size));
+        return ResponseEntity.ok(userApplicationService.getAllPaginated(page, size));
     }
 
     @Operation(
@@ -68,8 +68,8 @@ public class UserController {
             ))
     })
     @GetMapping("/account-user/{cpf}")
-    ResponseEntity<AccountUserDetailsDTO> getUserByCPF(@PathVariable String cpf) {
-        return ResponseEntity.ok(userApplicationService.getUserByCPF(cpf));
+    ResponseEntity<AccountUserDetailsDTO> getByCPF(@PathVariable String cpf) {
+        return ResponseEntity.ok(userApplicationService.getByCPF(cpf));
     }
 
     @Operation(
@@ -92,8 +92,8 @@ public class UserController {
     })
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequest){
-       UserResponseDTO response = userApplicationService.createUser(userRequest);
+    ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserRequestDTO userRequest){
+       UserResponseDTO response = userApplicationService.create(userRequest);
        return response != null ? ResponseEntity.ok(response) : ResponseEntity.noContent().build();
     }
 
@@ -114,8 +114,8 @@ public class UserController {
     })
     @PutMapping("/update")
     @PreAuthorize("hasRole('ADMIN')")
-    ResponseEntity<Void> updateUser(@RequestBody @Valid AccountUserDTO accountUserDTO){
-        userApplicationService.updateUser(accountUserDTO);
+    ResponseEntity<Void> update(@RequestBody @Valid AccountUserDTO accountUserDTO){
+        userApplicationService.update(accountUserDTO);
         return ResponseEntity.noContent().build();
     }
 
@@ -136,8 +136,8 @@ public class UserController {
     })
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    ResponseEntity<Void> deleteUser(@PathVariable Long id){
-        userApplicationService.deleteUser(id);
+    ResponseEntity<Void> delete(@PathVariable Long id){
+        userApplicationService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

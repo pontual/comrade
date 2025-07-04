@@ -29,22 +29,22 @@ public class UserApplicationService {
     private final UserResponseMapper userResponseMapper;
     private final AccountUserFetcher accountUserFetcher;
 
-    public Page<AccountUserDetailsDTO> getAllUsersPaginated(int page, int size) {
+    public Page<AccountUserDetailsDTO> getAllPaginated(int page, int size) {
         log.info("Buscando usuário cadastrados");
-        Page<AccountUserDetailsDTO> users = accountUserFetcher.getAllUsersPaginated(page, size);
+        Page<AccountUserDetailsDTO> users = accountUserFetcher.getAllPaginated(page, size);
         log.info("Dados retornados com sucesso");
         return users;
     }
 
-    public AccountUserDetailsDTO getUserByCPF(String cpf) {
+    public AccountUserDetailsDTO getByCPF(String cpf) {
         log.info("Buscando usuário por cpf={}", cpf);
-        AccountUserDetailsDTO user = accountUserFetcher.getUserByCPF(cpf);
+        AccountUserDetailsDTO user = accountUserFetcher.getByCPF(cpf);
         log.info("Busca realizada com sucesso para o usuário cpf={}", cpf);
         return user;
     }
 
     @Transactional
-    public UserResponseDTO createUser(UserRequestDTO userRequest) {
+    public UserResponseDTO create(UserRequestDTO userRequest) {
 
         Person person = personMapper.toEntity(userRequest);
         userDomainService.verifyIfPersonExists(userRequest.getDocument());
@@ -65,12 +65,16 @@ public class UserApplicationService {
     }
 
     @Transactional
-    public void updateUser(AccountUserDTO accountUserDTO) {
-        userDomainService.updateUser(accountUserDTO);
+    public void update(AccountUserDTO accountUserDTO) {
+        log.info("Iniciada a atualização de dados do usuário username={}", accountUserDTO.getUsername());
+        userDomainService.update(accountUserDTO);
+        log.info("Dados do usuário atualizados com sucesso username={}", accountUserDTO.getUsername());
     }
 
     @Transactional
-    public void deleteUser(Long id) {
-        userDomainService.deleteUser(id);
+    public void delete(Long id) {
+        log.info("Deletando usuário id={}", id);
+        userDomainService.delete(id);
+        log.info("Dados de usuário deletados com sucesso id={}", id);
     }
 }

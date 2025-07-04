@@ -31,7 +31,7 @@ public class UserDomainService {
                 .build();
     }
 
-    public void updateUser(AccountUserDTO accountUserDTO) {
+    public void update(AccountUserDTO accountUserDTO) {
         AccountUser user = userRepository.findById(accountUserDTO.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Conta de usuário não encontrada"));
 
@@ -44,7 +44,7 @@ public class UserDomainService {
         user.setEnabled(accountUserDTO.getEnabled());
     }
 
-    public void deleteUser(Long id) {
+    public void delete(Long id) {
         AccountUser user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Conta de usuário não encontrada"));
         userRepository.delete(user);

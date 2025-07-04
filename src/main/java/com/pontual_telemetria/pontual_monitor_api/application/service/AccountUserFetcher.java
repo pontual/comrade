@@ -17,13 +17,13 @@ public class AccountUserFetcher {
     private final UserRepository userRepository;
     private final AccountUserMapper accountUserMapper;
 
-    public Page<AccountUserDetailsDTO> getAllUsersPaginated(int page, int size) {
+    public Page<AccountUserDetailsDTO> getAllPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<AccountUser> accountUsers = userRepository.findAll(pageable);
         return accountUsers.map(accountUserMapper::toDto);
     }
 
-    public AccountUserDetailsDTO getUserByCPF(String cpf) {
+    public AccountUserDetailsDTO getByCPF(String cpf) {
         AccountUser accountUser = userRepository.findByPerson_Document(cpf);
         return accountUserMapper.toDto(accountUser);
     }
