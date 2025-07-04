@@ -1,5 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.domain.service;
 
+import com.pontual_telemetria.pontual_monitor_api.domain.exception.PontualMonitorException;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.person.PersonAlreadyExistsException;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.user.UserAlreadyExistsException;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.account_user.AccountUser;
@@ -10,6 +11,7 @@ import com.pontual_telemetria.pontual_monitor_api.web.dto.user.AccountUserDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.user.UserRequestDTO;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,8 +48,20 @@ public class UserDomainService {
 
     public void delete(Long id) {
         AccountUser user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Conta de usuário não encontrada"));
+                .orElseThrow(() -> new PontualMonitorException(
+                        "Usuário não encontrado",
+                        "USER_NOT_FOUND",
+                        HttpStatus.BAD_REQUEST,
+                        "Conta de usuário não encontrada")
+                );
         userRepository.delete(user);
+    }
+
+    public void deleteByPersonId(Long personId){
+        AccountUser accountUser = userRepository.findByPerson_Id(personId);
+        if(accountUser != null) {
+            userRepository.delete(accountUser);
+        }
     }
 
     public void verifyIfPersonExists(String document){
