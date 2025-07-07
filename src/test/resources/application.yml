@@ -34,6 +34,7 @@ security:
     secret: ${JWT_SECRET}
     access-expiration-ms: 900000 #15 minutes
     refresh-expiration-ms: 604800000 #7 dias
+    remember-refresh-expiration-ms: 1296000000 #15 dias
     cookie:
       secure: true
       same-site: "Lax"
@@ -50,7 +51,7 @@ sgman:
     unit: ${UNIT}
     url: https://get.api.sismetro.com
   token:
-    solicitantes: ${KEY_SOLICITANTES}
+    solicitante: ${KEY_SOLICITANTES}
     patrimonio: ${KEY_PATRIMONIOS}
 
 logging:

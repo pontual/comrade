@@ -15,7 +15,7 @@ security:
     secret: ${JWT_SECRET}
     cookie:
       secure: false
-      same-site: "Strict"
+      same-site: "Lax"
 
 server:
   port: 8081
