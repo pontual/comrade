@@ -59,6 +59,15 @@ public class JwtUtil {
         }
     }
 
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = getClaims(token);
+            return claims.getExpiration().before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return true;
+        }
+    }
+
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
     }

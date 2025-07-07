@@ -6,6 +6,7 @@ import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.JwtUtil;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.auth.AuthRequestDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.auth.AuthResponseDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.exception.ErrorResponse;
+import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,12 @@ public class AuthController {
     private final AuthApplicationService authApplicationService;
     private final CookieUtil cookieUtil;
     private final JwtUtil jwtUtil;
+
+    @Value("${security.jwt.access-expiration-ms}")
+    private long accessTokenExpirationTime;
+
+    @Value("${security.jwt.remember-refresh-expiration-ms}")
+    private long rememberTokenExpirationTime;
 
     @Operation(
             summary = "Autenticaçao de usuário",
@@ -60,12 +68,12 @@ public class AuthController {
     ){
         var response = authApplicationService.authenticateUser(authRequestDTO);
         String refreshToken = authApplicationService.refreshToken(response.getUsername(), List.of(response.getRole()));
-        ResponseCookie accessCookie = cookieUtil.createCookie(CookieUtil.ACCESS_TOKEN_COOKIE, response.getToken(), Duration.ofMinutes(15));
+        ResponseCookie accessCookie = cookieUtil.createCookie(CookieUtil.ACCESS_TOKEN_COOKIE, response.getToken(), Duration.ofMillis(accessTokenExpirationTime));
 
         ResponseCookie refreshCookie;
 
         if(authRequestDTO.isRememberMe()) {
-            refreshCookie = cookieUtil.createCookie(CookieUtil.REFRESH_TOKEN_COOKIE, refreshToken, Duration.ofDays(15));
+            refreshCookie = cookieUtil.createCookie(CookieUtil.REFRESH_TOKEN_COOKIE, refreshToken, Duration.ofMillis(rememberTokenExpirationTime));
         } else {
             refreshCookie = cookieUtil.createSessionCookie(CookieUtil.REFRESH_TOKEN_COOKIE, refreshToken);
         }
@@ -103,19 +111,20 @@ public class AuthController {
     public ResponseEntity<Void>  refreshToken(HttpServletRequest request, HttpServletResponse response){
         String refreshToken = cookieUtil.getCookieValue(request, CookieUtil.REFRESH_TOKEN_COOKIE);
 
-        if(refreshToken != null && jwtUtil.isTokenValid(refreshToken)) {
-            String username  = jwtUtil.extractUsername(refreshToken);
-            List<String> roles = jwtUtil.extractRoles(refreshToken);
-
-            String newAccessToken = jwtUtil.generateTokenFromRefreshToken(username, roles);
-
-            ResponseCookie accessCookie = cookieUtil.createCookie(CookieUtil.ACCESS_TOKEN_COOKIE, newAccessToken, Duration.ofMinutes(15));
-            CookieUtil.attachCookies(response, accessCookie);
-
-            return ResponseEntity.noContent().build();
+        if(refreshToken == null || jwtUtil.isTokenExpired(refreshToken)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        try {
+            String username  = jwtUtil.extractUsername(refreshToken);
+            List<String> roles = jwtUtil.extractRoles(refreshToken);
+            String newAccessToken = jwtUtil.generateTokenFromRefreshToken(username, roles);
+            ResponseCookie accessCookie = cookieUtil.createCookie(CookieUtil.ACCESS_TOKEN_COOKIE, newAccessToken, Duration.ofMillis(accessTokenExpirationTime));
+            CookieUtil.attachCookies(response, accessCookie);
+            return ResponseEntity.noContent().build();
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @Operation(
