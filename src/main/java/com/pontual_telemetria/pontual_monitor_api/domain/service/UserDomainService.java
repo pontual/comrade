@@ -3,7 +3,7 @@ package com.pontual_telemetria.pontual_monitor_api.domain.service;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.PontualMonitorException;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.person.PersonAlreadyExistsException;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.user.UserAlreadyExistsException;
-import com.pontual_telemetria.pontual_monitor_api.domain.model.account_user.AccountUser;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUser;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.PersonRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UserRepository;

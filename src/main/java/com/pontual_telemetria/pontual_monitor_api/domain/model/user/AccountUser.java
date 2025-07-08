@@ -1,4 +1,4 @@
-package com.pontual_telemetria.pontual_monitor_api.domain.model.account_user;
+package com.pontual_telemetria.pontual_monitor_api.domain.model.user;
 
 import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.Constants;

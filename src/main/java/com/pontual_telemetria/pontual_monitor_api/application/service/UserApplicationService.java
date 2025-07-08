@@ -2,7 +2,7 @@ package com.pontual_telemetria.pontual_monitor_api.application.service;
 
 import com.pontual_telemetria.pontual_monitor_api.application.mapper.PersonMapper;
 import com.pontual_telemetria.pontual_monitor_api.application.mapper.UserResponseMapper;
-import com.pontual_telemetria.pontual_monitor_api.domain.model.account_user.AccountUser;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUser;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.PersonRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UserRepository;

@@ -1,6 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.infrastructure.security;
 
-import com.pontual_telemetria.pontual_monitor_api.domain.model.account_user.AccountUser;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUser;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
