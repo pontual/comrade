@@ -30,6 +30,6 @@ public class SolicitanteDTO {
     private Integer uf;
     private Integer cidade;
     private Integer status;
-    private String createdAt;
-    private String updatedAt;
+    private String dataCadastro;
+    private String dataAlteracao;
 }

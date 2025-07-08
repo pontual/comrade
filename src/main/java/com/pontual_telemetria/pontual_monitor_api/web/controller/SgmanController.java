@@ -1,6 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.web.controller;
 
-import com.pontual_telemetria.pontual_monitor_api.application.service.SgmanService;
+import com.pontual_telemetria.pontual_monitor_api.application.service.SgmanIntegrationService;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.asset.SgmanAssetDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.requester.SgmanRequesterDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.exception.ErrorResponse;
@@ -24,7 +24,7 @@ import java.util.List;
 @RequestMapping("/sgman")
 public class SgmanController {
 
-    private final SgmanService sgmanService;
+    private final SgmanIntegrationService sgmanIntegrationService;
 
     @Operation(
             summary = "Lista todos os solicitantes cadastrados na SGMAN",
@@ -48,7 +48,7 @@ public class SgmanController {
     })
     @GetMapping("/requesters")
     ResponseEntity<List<SgmanRequesterDTO>> requestersListAll(){
-        List<SgmanRequesterDTO> response = sgmanService.requestersListAll();
+        List<SgmanRequesterDTO> response = sgmanIntegrationService.requestersListAll();
         return ResponseEntity.ok(response);
     }
 
@@ -74,7 +74,7 @@ public class SgmanController {
     })
     @GetMapping("/assets")
     ResponseEntity<List<SgmanAssetDTO>> assetsListAll(){
-        List<SgmanAssetDTO> response = sgmanService.assetsListAll();
+        List<SgmanAssetDTO> response = sgmanIntegrationService.assetsListAll();
         return ResponseEntity.ok(response);
     }
 
@@ -100,7 +100,7 @@ public class SgmanController {
     })
     @GetMapping("/asset/findAssetsByRequesterId")
     ResponseEntity<List<SgmanAssetDTO>> findAssetsByRequesterId(@RequestParam("requesterId") Integer requesterId){
-        List<SgmanAssetDTO> response = sgmanService.findAssetsByRequesterId(requesterId);
+        List<SgmanAssetDTO> response = sgmanIntegrationService.findAssetsByRequesterId(requesterId);
         return ResponseEntity.ok(response);
     }
 }

@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class SgmanService {
+public class SgmanIntegrationService {
 
     @Value("${sgman.client.unit}")
     private String sgmanUnit;
@@ -32,6 +32,7 @@ public class SgmanService {
     private String tokenPatrimonio;
 
     private final SgmanClient sgmanClient;
+    private final RequesterApplicationService requesterApplicationService;
 
     final RequesterMapper requesterMapper;
     final AssetMapper assetMapper;
@@ -47,6 +48,7 @@ public class SgmanService {
             throw new SgmanException(errorMessage);
         }
         List<SgmanRequesterDTO> requesters = requesterMapper.toResponseList(sgmanResponse.getResultList());
+        requesterApplicationService.updateRequestsBySgman(requesters);
         log.info("Finalizada a consulta de solicitantes no SGMAN");
         return requesters;
     }
