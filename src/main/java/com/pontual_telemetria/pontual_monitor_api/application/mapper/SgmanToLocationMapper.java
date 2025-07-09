@@ -19,7 +19,7 @@ public class SgmanToLocationMapper {
                 .description(dto.getDescricao())
                 .requesterId(dto.getIdSolicitante())
                 .locationId(dto.getIdLocalizacao())
-                .location(dto.getLocalizacao())
+                .locationName(dto.getLocalizacao())
                 .categoryId(dto.getIdCategoria())
                 .category(dto.getCategoria())
                 .typeTechId(dto.getIdTipoTec())
