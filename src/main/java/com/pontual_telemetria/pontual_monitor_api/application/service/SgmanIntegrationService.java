@@ -33,6 +33,7 @@ public class SgmanIntegrationService {
 
     private final SgmanClient sgmanClient;
     private final RequesterApplicationService requesterApplicationService;
+    private final LocationApplicationService locationApplicationService;
 
     final RequesterMapper requesterMapper;
     final AssetMapper assetMapper;
@@ -79,6 +80,7 @@ public class SgmanIntegrationService {
             throw new SgmanException(errorMessage);
         }
         List<SgmanAssetDTO> assets = assetMapper.toResponseList(sgmanResponse.getResultList());
+        locationApplicationService.updateLocationBySgman(assets);
         log.info("Finalizada a consulta de patrimônios por id de solicitante no SGMAN: idSolicitante={}", requesterId);
         return assets;
     }
