@@ -4,7 +4,7 @@ import com.pontual_telemetria.pontual_monitor_api.application.mapper.RequesterMa
 import com.pontual_telemetria.pontual_monitor_api.domain.model.customer.Requester;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.RequesterRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.service.RequesterDomainService;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.RequesterDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.requester.RequesterDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.requester.SgmanRequesterDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,4 +33,6 @@ public class RequesterApplicationService {
         requesterDomainService.updateRequestsBySgman(sgmanRequestersDTO);
         log.info("Finalizada a consulta de solicitantes cadastrados no SGMAN");
     }
+
+
 }

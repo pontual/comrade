@@ -1,7 +1,7 @@
 package com.pontual_telemetria.pontual_monitor_api.web.controller;
 
 import com.pontual_telemetria.pontual_monitor_api.application.service.RequesterApplicationService;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.RequesterDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.requester.RequesterDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/requester")
+@RequestMapping("/requesters")
 public class RequesterController {
 
     private final RequesterApplicationService requesterApplicationService;
@@ -44,7 +44,7 @@ public class RequesterController {
                     schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
-    @GetMapping("/get-all")
+    @GetMapping()
     public ResponseEntity<List<RequesterDTO>> getAll() {
         List<RequesterDTO> response = requesterApplicationService.getAll();
         return ResponseEntity.ok(response);
