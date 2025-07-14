@@ -1,7 +1,7 @@
 package com.pontual_telemetria.pontual_monitor_api.web.controller;
 
 import com.pontual_telemetria.pontual_monitor_api.application.service.SgmanIntegrationService;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.asset.SgmanAssetDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.location.SgmanLocationDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.requester.SgmanRequesterDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,7 +60,7 @@ public class SgmanController {
             @ApiResponse(responseCode = "200", description = "Dados de patrimônio consultados com sucesso", content = @Content(
                     mediaType = "application/json",
                     array = @ArraySchema(
-                            schema = @Schema(implementation = SgmanAssetDTO.class)
+                            schema = @Schema(implementation = SgmanLocationDTO.class)
                     )
             )),
             @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(
@@ -72,9 +72,9 @@ public class SgmanController {
                     schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
-    @GetMapping("/assets")
-    ResponseEntity<List<SgmanAssetDTO>> assetsListAll(){
-        List<SgmanAssetDTO> response = sgmanIntegrationService.assetsListAll();
+    @GetMapping("/locations")
+    ResponseEntity<List<SgmanLocationDTO>> locationListAll(){
+        List<SgmanLocationDTO> response = sgmanIntegrationService.locationListAll();
         return ResponseEntity.ok(response);
     }
 
@@ -86,7 +86,7 @@ public class SgmanController {
             @ApiResponse(responseCode = "200", description = "Dados de patrimônio por solicitante consultados com sucesso", content = @Content(
                     mediaType = "application/json",
                     array = @ArraySchema(
-                            schema = @Schema(implementation = SgmanAssetDTO.class)
+                            schema = @Schema(implementation = SgmanLocationDTO.class)
                     )
             )),
             @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(
@@ -98,9 +98,9 @@ public class SgmanController {
                     schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
-    @GetMapping("/asset/findAssetsByRequesterId")
-    ResponseEntity<List<SgmanAssetDTO>> findAssetsByRequesterId(@RequestParam("requesterId") Integer requesterId){
-        List<SgmanAssetDTO> response = sgmanIntegrationService.findAssetsByRequesterId(requesterId);
+    @GetMapping("/location/findByRequesterId")
+    ResponseEntity<List<SgmanLocationDTO>> findlocationByRequesterId(@RequestParam("requesterId") Integer requesterId){
+        List<SgmanLocationDTO> response = sgmanIntegrationService.findLocationByRequesterId(requesterId);
         return ResponseEntity.ok(response);
     }
 }

@@ -1,7 +1,7 @@
 package com.pontual_telemetria.pontual_monitor_api.application.mapper;
 
 import com.pontual_telemetria.pontual_monitor_api.domain.model.customer.Location;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.asset.SgmanAssetDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.location.SgmanLocationDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 @Component
 public class SgmanToLocationMapper {
-    public Location toEntity(SgmanAssetDTO dto){
+    public Location toEntity(SgmanLocationDTO dto){
        return Location.builder()
                 .externalId(dto.getId())
                 .description(dto.getDescricao())
@@ -27,6 +27,8 @@ public class SgmanToLocationMapper {
                 .observation(dto.getObservacao())
                 .brandId(dto.getIdMarca())
                 .brand(dto.getMarca())
+                .modelId(dto.getIdModelo())
+                .model(dto.getModelo())
                 .serial(dto.getSerial())
                 .patrimony(dto.getPatrimonio())
                 .tag(dto.getTag())

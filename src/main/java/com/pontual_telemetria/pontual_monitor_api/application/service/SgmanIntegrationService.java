@@ -1,13 +1,13 @@
 package com.pontual_telemetria.pontual_monitor_api.application.service;
 
-import com.pontual_telemetria.pontual_monitor_api.application.mapper.AssetMapper;
+import com.pontual_telemetria.pontual_monitor_api.application.mapper.SgmanLocationMapper;
 import com.pontual_telemetria.pontual_monitor_api.application.mapper.RequesterMapper;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.sgman.SgmanException;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.client.feign.sgman.SgmanClient;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.client.feign.sgman.dto.patrimonio.PatrimonioResponseDTO;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.client.feign.sgman.dto.solicitante.SolicitanteResponseDTO;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.Constants;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.asset.SgmanAssetDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.location.SgmanLocationDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.requester.SgmanRequesterDTO;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class SgmanIntegrationService {
     private final LocationApplicationService locationApplicationService;
 
     final RequesterMapper requesterMapper;
-    final AssetMapper assetMapper;
+    final SgmanLocationMapper sgmanLocationMapper;
 
     public List<SgmanRequesterDTO> requestersListAll(){
         SolicitanteResponseDTO sgmanResponse;
@@ -54,7 +54,7 @@ public class SgmanIntegrationService {
         return requesters;
     }
 
-    public List<SgmanAssetDTO> assetsListAll(){
+    public List<SgmanLocationDTO> locationListAll(){
         PatrimonioResponseDTO sgmanResponse;
         log.info("Iniciada a consulta de patrimônios no SGMAN");
         try {
@@ -64,12 +64,12 @@ public class SgmanIntegrationService {
             log.error(Constants.SGMAN_ERROR_MESSAGE + "{}", errorMessage, e);
             throw new SgmanException(errorMessage);
         }
-        List<SgmanAssetDTO> assets = assetMapper.toResponseList(sgmanResponse.getResultList());
+        List<SgmanLocationDTO> locations = sgmanLocationMapper.toResponseList(sgmanResponse.getResultList());
         log.info("Finalizada a consulta de patrimônios no SGMAN");
-        return assets;
+        return locations;
     }
 
-    public List<SgmanAssetDTO> findAssetsByRequesterId(Integer requesterId){
+    public List<SgmanLocationDTO> findLocationByRequesterId(Integer requesterId){
         PatrimonioResponseDTO sgmanResponse;
         log.info("Iniciada a consulta de patrimônios por id de solicitante no SGMAN: idSolicitante={}", requesterId);
         try {
@@ -79,9 +79,9 @@ public class SgmanIntegrationService {
             log.error(Constants.SGMAN_ERROR_MESSAGE + "{}", errorMessage, e);
             throw new SgmanException(errorMessage);
         }
-        List<SgmanAssetDTO> assets = assetMapper.toResponseList(sgmanResponse.getResultList());
-        locationApplicationService.updateLocationBySgman(assets);
+        List<SgmanLocationDTO> locations = sgmanLocationMapper.toResponseList(sgmanResponse.getResultList());
+        locationApplicationService.updateLocationBySgman(locations);
         log.info("Finalizada a consulta de patrimônios por id de solicitante no SGMAN: idSolicitante={}", requesterId);
-        return assets;
+        return locations;
     }
 }

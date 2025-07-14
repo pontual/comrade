@@ -1,4 +1,4 @@
-package com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.asset;
+package com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.location;
 
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.client.feign.sgman.dto.patrimonio.PrevisaoHorasDTO;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SgmanAssetDTO {
+public class SgmanLocationDTO {
     private Long id;
     private String idErp;
     private String descricao;
