@@ -51,6 +51,11 @@ public class Location {
 
     private String brand;
 
+    @Column(name = "model_id")
+    private Integer modelId;
+
+    private String model;
+
     private String serial;
 
     private String patrimony;
