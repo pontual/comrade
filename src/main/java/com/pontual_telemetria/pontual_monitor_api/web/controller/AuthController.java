@@ -81,7 +81,8 @@ public class AuthController {
         CookieUtil.attachCookies(httpResponse, accessCookie, refreshCookie);
 
         return ResponseEntity.ok(new AuthResponseDTO(
-            true,
+                response.getId(),
+                true,
                 null,
                 response.getUsername(),
                 response.getRole(),

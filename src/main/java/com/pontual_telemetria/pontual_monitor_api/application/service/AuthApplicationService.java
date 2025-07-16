@@ -29,6 +29,7 @@ public class AuthApplicationService {
         log.info("Token de acesso gerado com sucesso");
 
         return new AuthResponseDTO(
+                user.getId(),
                 true,
                 token,
                 user.getUsername(),

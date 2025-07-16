@@ -8,6 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 @NotNull
 public class AuthResponseDTO {
+    private Long id;
     private Boolean isValidLogin;
     private String token;
     private String username;
