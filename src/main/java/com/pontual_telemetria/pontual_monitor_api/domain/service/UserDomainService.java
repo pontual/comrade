@@ -8,6 +8,7 @@ import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.PersonRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UserRepository;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.user.AccountUserDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.user.ResetPasswordDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.user.UserRequestDTO;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,28 @@ public class UserDomainService {
                 .person(person)
                 .enabled(userRequest.isEnabled())
                 .build();
+    }
+
+    public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        AccountUser accountUser = userRepository.findByUsername(resetPasswordDTO.getUsername());
+        if (accountUser == null) {
+            throw new PontualMonitorException("Usuário não encontrado", "USER_NOT_FOUND", HttpStatus.BAD_REQUEST, "O usuário informado não foi encontrado.");
+        }
+
+        if (!passwordEncoder.matches(resetPasswordDTO.getPassword(), accountUser.getPassword())) {
+            throw new PontualMonitorException("Senha inválida", "PASSWORD_DOES_NOT_MATCH", HttpStatus.BAD_REQUEST, "A senha informada está incorreta.");
+        }
+
+        if (passwordEncoder.matches(resetPasswordDTO.getNewPassword(), accountUser.getPassword())) {
+            throw new PontualMonitorException("Nova senha igual à atual", "PASSWORD_SAME_AS_OLD", HttpStatus.BAD_REQUEST, "A nova senha deve ser diferente da atual.");
+        }
+
+        if (!isValidPassword(resetPasswordDTO.getNewPassword(), resetPasswordDTO.getConfirmNewPassword())) {
+            throw new PontualMonitorException("Nova senha inválida", "INVALID_PASSWORD", HttpStatus.BAD_REQUEST, "A nova senha informada não atende aos requisitos de segurança.");
+        }
+
+        accountUser.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+        userRepository.save(accountUser);
     }
 
     public void update(AccountUserDTO accountUserDTO) {
@@ -76,5 +99,10 @@ public class UserDomainService {
         if(isUserExists){
             throw new UserAlreadyExistsException(username);
         }
+    }
+
+    public boolean isValidPassword(String newPassword, String confirmNewPassword) {
+        String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$";
+        return newPassword.equals(confirmNewPassword) && newPassword.matches(regex);
     }
 }

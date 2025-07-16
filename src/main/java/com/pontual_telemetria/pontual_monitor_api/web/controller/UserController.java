@@ -98,6 +98,27 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Atualiza senha de acesso do usuário",
+            description = "Realiza a atualização da senha de acesso do usuário"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Senha de acesso atualizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            ))
+    })
+    @PutMapping("/reset-password")
+    ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO resetPasswordDTO){
+        userApplicationService.resetPassword(resetPasswordDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Atualização de conta de usuário",
             description = "Atualiza dados usuário/role de usuário"
     )
