@@ -14,9 +14,9 @@ public class DataReadingApplicationService {
     final DataReadingDomainService dataReadingDomainService;
 
     public DataExtractionResult sismetroDataExtraction(MultipartFile file) {
-        log.info("Iniciada extração dos dados do arquivo: {}", file.getOriginalFilename());
+        log.info("[DATA-EXTRACT] Iniciada extração dos dados do arquivo: {}", file.getOriginalFilename());
         DataExtractionResult result = dataReadingDomainService.excelToJsonParse(file);
-        log.info("Finalizada a extração dos dados do arquivo: {}", file.getOriginalFilename());
+        log.info("[DATA-EXTRACT] Finalizada a extração dos dados do arquivo: {}", file.getOriginalFilename());
         return result;
     }
 }

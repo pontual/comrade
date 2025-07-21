@@ -40,7 +40,7 @@ public class SgmanIntegrationService {
 
     public List<SgmanRequesterDTO> requestersListAll(){
         SolicitanteResponseDTO sgmanResponse;
-        log.info("Iniciada a consulta de solicitantes no SGMAN");
+        log.info("[GET-REQUESTERS-SGMAN] Iniciada a consulta de solicitantes no SGMAN");
         try {
             sgmanResponse = sgmanClient.listAllSolicitantes(sgmanUnit, tokenSolicitante);
         } catch(FeignException e){
@@ -50,13 +50,13 @@ public class SgmanIntegrationService {
         }
         List<SgmanRequesterDTO> requesters = requesterMapper.toResponseList(sgmanResponse.getResultList());
         requesterApplicationService.updateRequestsBySgman(requesters);
-        log.info("Finalizada a consulta de solicitantes no SGMAN");
+        log.info("[GET-REQUESTERS-SGMAN] Finalizada a consulta de solicitantes no SGMAN");
         return requesters;
     }
 
     public List<SgmanLocationDTO> locationListAll(){
         PatrimonioResponseDTO sgmanResponse;
-        log.info("Iniciada a consulta de patrimônios no SGMAN");
+        log.info("[GET-LOCATIONS-SGMAN] Iniciada a consulta de patrimônios no SGMAN");
         try {
             sgmanResponse = sgmanClient.listAllPatrimonios(sgmanUnit, tokenPatrimonio);
         } catch(FeignException e){
@@ -65,7 +65,7 @@ public class SgmanIntegrationService {
             throw new SgmanException(errorMessage);
         }
         List<SgmanLocationDTO> locations = sgmanLocationMapper.toResponseList(sgmanResponse.getResultList());
-        log.info("Finalizada a consulta de patrimônios no SGMAN");
+        log.info("[GET-LOCATIONS-SGMAN] Finalizada a consulta de patrimônios no SGMAN");
         return locations;
     }
 

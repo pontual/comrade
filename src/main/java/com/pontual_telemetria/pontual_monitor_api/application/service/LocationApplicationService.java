@@ -27,8 +27,8 @@ public class LocationApplicationService {
     }
 
     public void updateLocationBySgman(List<SgmanLocationDTO> sgmanLocationDTO) {
-        log.info("Iniciada a consulta de localizações cadastrados no SGMAN");
+        log.info("[UPDATE-LOCATION-SGMAN] Iniciada a consulta de localizações cadastrados no SGMAN");
         locationDomainService.updateLocationBySgman(sgmanLocationDTO);
-        log.info("Finalizada a consulta de localizações cadastrados no SGMAN");
+        log.info("[UPDATE-LOCATION-SGMAN] Finalizada a consulta de localizações cadastrados no SGMAN");
     }
 }

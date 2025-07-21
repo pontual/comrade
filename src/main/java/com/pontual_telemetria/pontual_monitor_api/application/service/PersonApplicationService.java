@@ -16,23 +16,23 @@ public class PersonApplicationService {
     private final PersonDataFetcher personDataFetcher;
 
     public PersonDTO getByDocument(String document){
-        log.info("Recuperando dados da pessoa documento={}", document);
+        log.info("[GET-PERSON] Recuperando dados da pessoa documento={}", document);
         PersonDTO person = personDataFetcher.getByDocument(document);
-        log.info("Dados da pessoa recuperados com sucesso documento={}", document);
+        log.info("[GET-PERSON] Dados da pessoa recuperados com sucesso documento={}", document);
         return person;
     }
 
     @Transactional
     public void update(PersonDTO personDTO) {
-        log.info("Iniciando atualização de dados da pessoa nome={}", personDTO.getName());
+        log.info("[UPDATE-PERSON] Iniciando atualização de dados da pessoa nome={}", personDTO.getName());
         personDomainService.update(personDTO);
-        log.info("Finaliazada atualização de dados da pessoa nome={}", personDTO.getName());
+        log.info("[UPDATE-PERSON] Finaliazada atualização de dados da pessoa nome={}", personDTO.getName());
     }
 
     @Transactional
     public void delete(Long id) {
-        log.info("Iniciando exclusão de dados da pessoa id={}", id);
+        log.info("[DELETE-PERSON] Iniciando exclusão de dados da pessoa id={}", id);
         personDomainService.delete(id);
-        log.info("Finalizada exclusão de dados da pessoa id={}", id);
+        log.info("[DELETE-PERSON] Finalizada exclusão de dados da pessoa id={}", id);
     }
 }

@@ -22,16 +22,16 @@ public class RequesterApplicationService {
     private final RequesterMapper requesterMapper;
 
     public  List<RequesterDTO> getAll() {
-        log.info("Recuperando lista de solicitantes");
+        log.info("[GET-REQUESTERS] Recuperando lista de solicitantes");
         List<Requester> requesters = requesterRepository.findAll();
-        log.info("Lista de solicitantes recuperada");
+        log.info("[GET-REQUESTERS] Lista de solicitantes recuperada");
         return requesterMapper.toDtoList(requesters);
     }
 
     public void updateRequestsBySgman(List<SgmanRequesterDTO> sgmanRequestersDTO) {
-        log.info("Iniciada a consulta de solicitantes cadastrados no SGMAN");
+        log.info("[UPDATE-REQUESTERS] Iniciada a consulta de solicitantes cadastrados no SGMAN");
         requesterDomainService.updateRequestsBySgman(sgmanRequestersDTO);
-        log.info("Finalizada a consulta de solicitantes cadastrados no SGMAN");
+        log.info("[UPDATE-REQUESTERS] Finalizada a consulta de solicitantes cadastrados no SGMAN");
     }
 
 
