@@ -22,6 +22,7 @@ public class Constants {
     public static final String TABLE_USAGE_GRANT_MONTHLY = "usage_grant_monthly";
     public static final String TABLE_CONTROL = "control";
     public static final String TABLE_INSTANTANEOUS_FLOW_RATE = "instantaneous_flow_rate";
+    public static final String TABLE_DEVICE = "device";
 
     //ERRORS
     public static final String SGMAN_ERROR_MESSAGE = "Erro ao realizar consulta SGMAN: ";
