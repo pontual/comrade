@@ -45,6 +45,10 @@ public class PersonController {
         return ResponseEntity.ok(person);
     }
 
+    @Operation(
+            summary = "Atualiza dados da pesssoa",
+            description = "Realiza atualização de dados pessoais"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Dados pessoa atualizados com sucesso"),
             @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(
@@ -62,6 +66,10 @@ public class PersonController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Deleta dados da pessoa",
+            description = "Remove dados da pessoa por id"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Pessoa excluída com sucesso"),
             @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(
