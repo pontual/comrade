@@ -21,6 +21,7 @@ public class Constants {
     public static final String TABLE_USAGE_GRANT = "usage_grant";
     public static final String TABLE_USAGE_GRANT_MONTHLY = "usage_grant_monthly";
     public static final String TABLE_CONTROL = "control";
+    public static final String TABLE_CONTROL_READING = "control_reading";
     public static final String TABLE_INSTANTANEOUS_FLOW_RATE = "instantaneous_flow_rate";
     public static final String TABLE_DEVICE = "device";
 
