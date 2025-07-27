@@ -71,6 +71,27 @@ public class DeviceController {
     }
 
     @Operation(
+            summary = "Atualiza situação do dispositivo",
+            description = "Atualiza situação do dispositivo por id"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Dispositivo atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            ))
+    })
+    @PutMapping("/update/{id}/{status}")
+    public ResponseEntity<Void> update(@PathVariable Long id, @PathVariable boolean status){
+        deviceApplicationService.update(id, status);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Deleta dispositivo",
             description = "Apaga dados dispositivo por id"
     )

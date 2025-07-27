@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS sch_monitoring.device (
     brand VARCHAR(100),
     identifier VARCHAR(20) NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    active BOOLEAN NOT NULL
+    active BOOLEAN NOT NULL,
+    linked_patrimony VARCHAR(255)
 );
 
 ALTER TABLE  sch_monitoring.device

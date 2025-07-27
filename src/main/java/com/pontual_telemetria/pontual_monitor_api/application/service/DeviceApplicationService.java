@@ -32,6 +32,12 @@ public class DeviceApplicationService {
         log.info("[CREATE-DEVICE] Cadastro de novo dispositivo realizado com sucesso");
     }
 
+    public void update(Long id, boolean status){
+        log.info("[UPDATE-DEVICE] Atualizando situacao dispositivo");
+        deviceDomainService.update(id, status);
+        log.info("[UPDATE-DEVICE] Situação dispositivo do atualizada com sucesso");
+    }
+
     public void delete(Long id){
         log.info("[DELETE-DEVICE] Inciada exclusão de dispositivo id={}", id);
         deviceDomainService.delete(id);

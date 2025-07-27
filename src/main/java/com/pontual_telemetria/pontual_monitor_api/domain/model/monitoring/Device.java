@@ -37,4 +37,6 @@ public class Device {
     @Column(nullable = false)
     private Boolean active;
 
+    @Column(name = "linked_patrimony")
+    private String linkedPatrimony;
 }

@@ -15,4 +15,5 @@ public class DeviceDTO {
     private String identifier;
     private LocalDateTime createdAt;
     private Boolean active;
+    private String linkedPatrimony;
 }

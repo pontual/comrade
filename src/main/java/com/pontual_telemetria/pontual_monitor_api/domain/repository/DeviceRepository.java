@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface DeviceRepository extends JpaRepository<Device, Integer> {
     boolean existsByIdentifier(String identifier);
     Device getDeviceById(Long id);
+    Device getDeviceByIdentifier(String identifier);
 }

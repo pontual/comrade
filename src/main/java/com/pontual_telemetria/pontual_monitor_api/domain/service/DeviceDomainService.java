@@ -36,6 +36,22 @@ public class DeviceDomainService {
         }
     }
 
+    public void update(Long id, boolean status){
+        Device device = deviceRepository.getDeviceById(id);
+
+        if(device != null){
+            device.setActive(status);
+            deviceRepository.save(device);
+        } else {
+            throw new PontualMonitorException(
+                    "Device não encontrado",
+                    "DEVICE_NOT_FOUND",
+                    HttpStatus.BAD_REQUEST,
+                    "O device informado não foi encontrado"
+            );
+        }
+    }
+
     public void delete(Long id){
         Device device = deviceRepository.getDeviceById(id);
         deviceRepository.delete(device);
