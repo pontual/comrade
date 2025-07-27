@@ -2,7 +2,6 @@ CREATE TABLE IF NOT EXISTS sch_monitoring.control (
     id SERIAL PRIMARY KEY,
     location_id BIGINT NOT NULL,
     device_id VARCHAR(20) NOT NULL,
-    device_status VARCHAR(30) NOT NULL,
     dt_device_activate TIMESTAMP NOT NULL,
     dt_device_deactivation TIMESTAMP,
     active BOOLEAN NOT NULL,

@@ -39,9 +39,6 @@ public class Control {
     @Column(name = "device_id", length = 20, nullable = false)
     private String deviceId;
 
-    @Column(name = "device_status", length = 30, nullable = false)
-    private String deviceStatus;
-
     @Column(name = "dt_device_activate", nullable = false)
     private LocalDateTime dtDeviceActivate;
 
