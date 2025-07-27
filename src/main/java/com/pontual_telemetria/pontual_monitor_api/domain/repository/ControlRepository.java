@@ -13,5 +13,4 @@ public interface ControlRepository extends JpaRepository<Control, Long> {
     @EntityGraph(attributePaths = {"readings"})
     @Query("SELECT c FROM Control c")
     List<Control> findAllWithReadings();
-
 }

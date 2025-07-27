@@ -14,11 +14,10 @@ public class ControlDTO {
     private Long id;
     private Long locationId;
     private String deviceId;
-    private String deviceStatus;
     private LocalDateTime dtDeviceActivate;
     private LocalDateTime dtDeviceDeactivation;
     private Boolean active;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<ControlReadingRequesterDTO> readings;
+    private List<ControlReadingRequestDTO> readings;
 }

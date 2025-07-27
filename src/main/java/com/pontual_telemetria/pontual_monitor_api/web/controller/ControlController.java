@@ -2,7 +2,7 @@ package com.pontual_telemetria.pontual_monitor_api.web.controller;
 
 import com.pontual_telemetria.pontual_monitor_api.application.service.ControlApplicationService;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlDTO;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingRequesterDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingRequestDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingResponseDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,6 +73,27 @@ public class ControlController {
     }
 
     @Operation(
+            summary = "Desativa controle",
+            description = "Desativa controle por id"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Controle desativado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            ))
+    })
+    @PutMapping("/disable/{id}")
+    public ResponseEntity<Void> disable(@PathVariable Long id){
+        controlApplicationService.disable(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Lista dados de leitura cadastrados",
             description = "Retorna lista com dados de leitura por localização"
     )
@@ -114,8 +135,8 @@ public class ControlController {
             ))
     })
     @PostMapping("/create/reading-data")
-    public ResponseEntity<Void> createReadingData(@RequestBody @Valid List<ControlReadingRequesterDTO> controlReadingRequesterDTO){
-        controlApplicationService.createReadingData(controlReadingRequesterDTO);
+    public ResponseEntity<Void> createReadingData(@RequestBody @Valid List<ControlReadingRequestDTO> controlReadingRequestDTO){
+        controlApplicationService.createReadingData(controlReadingRequestDTO);
         return ResponseEntity.noContent().build();
     }
 }

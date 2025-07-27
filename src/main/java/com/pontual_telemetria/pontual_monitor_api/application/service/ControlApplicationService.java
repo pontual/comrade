@@ -4,7 +4,7 @@ import com.pontual_telemetria.pontual_monitor_api.application.mapper.ControlMapp
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.ControlRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.service.ControlDomainService;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlDTO;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingRequesterDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingRequestDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +34,12 @@ public class ControlApplicationService {
         log.info("[CREATE-CONTROL] Controle criado com sucesso");
     }
 
+    public void disable(Long id) {
+        log.info("[UPDATE-CONTROL] Desativando controle id={}", id);
+        controlDomainService.disable(id);
+        log.info("[UPDATE-CONTROL] Controle id={} desativado com sucesso", id);
+    }
+
     public List<ControlReadingResponseDTO> getReadingDataByLocationId(Long locationId){
         log.info("[GET-READING-DATA] Recuperando registros de controle para o id{}", locationId);
         List<ControlReadingResponseDTO> list = controlDomainService.getReadingDataByLocationId(locationId);
@@ -41,9 +47,9 @@ public class ControlApplicationService {
         return list;
     }
 
-    public void createReadingData(List<ControlReadingRequesterDTO> controlReadingRequesterDTO) {
+    public void createReadingData(List<ControlReadingRequestDTO> controlReadingRequestDTO) {
         log.info("[CREATE-READING-CONTROL] Registrando dados de controle");
-        controlDomainService.createReadingData(controlReadingRequesterDTO);
+        controlDomainService.createReadingData(controlReadingRequestDTO);
         log.info("[CREATE-READING-CONTROL] Dados de controle registrados com sucesso");
     }
 }
