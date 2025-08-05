@@ -18,6 +18,7 @@ import java.util.List;
 @Table(name = Constants.TABLE_USAGE_GRANT, schema = Constants.SCHEMA_REGULATORY,
         indexes = {
                 @Index(name = "idx_usage_grant_location_id", columnList = "location_id"),
+                @Index(name = "idx_usage_grant_identifier", columnList = "identifier"),
                 @Index(name = "idx_usage_grant_dates", columnList = "start_date, end_date")
         }
 )
@@ -33,22 +34,28 @@ public class UsageGrant {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_grant_location")
     )
+
     private Location location;
 
-    @Column(name = "start_date")
+    @Column(nullable = false, length = 100)
+    private String identifier;
+
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
-    @Column(name = "total_duration", precision = 10, scale = 2)
+    @Column(name = "total_duration", precision = 15, scale = 2)
     private BigDecimal totalDuration;
 
-    @Column(name = "total_volume",  precision = 10, scale = 2)
+    @Column(name = "total_volume",  precision = 15, scale = 2)
     private BigDecimal totalVolume;
 
+    @Column(name = "maximum_flow_rate", precision = 15, scale = 2)
+    private BigDecimal maximumFlowRate;
+
     @OneToMany(mappedBy = "usageGrant", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("year ASC, month ASC")
     private List<UsageGrantMonthly> monthlyGrants;
 }
 

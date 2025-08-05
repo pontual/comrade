@@ -34,6 +34,10 @@ public class ControlDomainService {
     public void create(ControlDTO controlDTO){
         Location location = locationRepository.findByExternalId(controlDTO.getLocationId());
 
+        if(location == null){
+            throw new PontualMonitorException("Localização não informada", "ID_LOCATION_NOT_SPECIFIED", HttpStatus.BAD_REQUEST, "É necessário informar o id da Localização");
+        }
+
         Control control = Control.builder()
                 .location(location)
                 .deviceId(controlDTO.getDeviceId())

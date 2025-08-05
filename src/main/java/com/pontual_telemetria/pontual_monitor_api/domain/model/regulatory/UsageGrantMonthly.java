@@ -24,11 +24,9 @@ import java.math.BigDecimal;
         }
 )
 public class UsageGrantMonthly {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -44,9 +42,15 @@ public class UsageGrantMonthly {
     @Column(nullable = false)
     private Integer month;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal duration;
+    @Column(name = "flow_rate", precision = 15, scale = 2)
+    private BigDecimal flowRate;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal volume;
+    @Column(name = "hours_day", precision = 4, scale = 2)
+    private BigDecimal hoursDay;
+
+    @Column(name = "days_month", precision = 4, scale = 2)
+    private BigDecimal daysMonth;
+
+    @Column(name = "maximum_volume", precision = 15, scale = 2)
+    private BigDecimal maximumVolume;
 }
