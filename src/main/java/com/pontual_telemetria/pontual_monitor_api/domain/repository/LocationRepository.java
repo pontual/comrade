@@ -10,5 +10,5 @@ import java.util.List;
 public interface LocationRepository extends JpaRepository<Location, Integer> {
     boolean existsByExternalId(Long externalId);
     Location findByExternalId(Long externalId);
-    List<Location> findAllByRequesterId(Long requesterId);
+    List<Location> findAllByRequesterId(Integer requesterId);
 }

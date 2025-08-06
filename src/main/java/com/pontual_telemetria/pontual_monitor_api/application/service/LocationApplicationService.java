@@ -21,7 +21,7 @@ public class LocationApplicationService {
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
 
-    public List<LocationDTO> getByRequesterId(Long requesterId){
+    public List<LocationDTO> getByRequesterId(Integer requesterId){
         List<Location> locations = locationRepository.findAllByRequesterId(requesterId);
         return locationMapper.toListDto(locations);
     }

@@ -19,6 +19,7 @@ import java.util.List;
         schema = Constants.SCHEMA_MONITORING,
         indexes = {
                 @Index(name = "idx_control_location_id", columnList = "location_id"),
+                @Index(name = "idx_control_external_id", columnList = "external_id"),
                 @Index(name = "idx_control_device_id", columnList = "device_id"),
         }
 )
@@ -35,6 +36,9 @@ public class Control {
             foreignKey = @ForeignKey(name = "fk_control_location")
     )
     private Location location;
+
+    @Column(name = "external_id", nullable = false)
+    private Long externalId;
 
     @Column(name = "device_id", length = 20, nullable = false)
     private String deviceId;
@@ -56,5 +60,4 @@ public class Control {
 
     @OneToMany(mappedBy = "control", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ControlReading> readings;
-
 }

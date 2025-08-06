@@ -30,7 +30,6 @@ public class ControlDomainService {
     private final ControlReadingDataRepository controlReadingDataRepository;
     private final ControlReadingMapper controlReadingMapper;
 
-
     public void create(ControlDTO controlDTO){
         Location location = locationRepository.findByExternalId(controlDTO.getLocationId());
 
@@ -40,6 +39,7 @@ public class ControlDomainService {
 
         Control control = Control.builder()
                 .location(location)
+                .externalId(location.getExternalId())
                 .deviceId(controlDTO.getDeviceId())
                 .dtDeviceActivate(controlDTO.getDtDeviceActivate())
                 .active(controlDTO.getActive())

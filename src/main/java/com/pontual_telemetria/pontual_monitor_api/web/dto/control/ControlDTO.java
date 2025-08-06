@@ -13,6 +13,7 @@ import java.util.List;
 public class ControlDTO {
     private Long id;
     private Long locationId;
+    private Long externalId;
     private String deviceId;
     private LocalDateTime dtDeviceActivate;
     private LocalDateTime dtDeviceDeactivation;

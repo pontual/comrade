@@ -21,9 +21,9 @@ public class ControlApplicationService {
     private final ControlRepository controlRepository;
     private final ControlMapper controlMapper;
 
-    public List<ControlDTO> getControls() {
+    public List<ControlDTO> getControlsByExternalId(Long externalId) {
         log.info("[GET-CONTROLS] Recuperando lista de controles");
-        List<ControlDTO> controls = controlMapper.toListDto(controlRepository.findAllWithReadings());
+        List<ControlDTO> controls = controlMapper.toListDto(controlRepository.findAllWithReadings(externalId));
         log.info("[GET-CONTROLS] Lista de controles recuperada com sucesso");
         return controls;
     }

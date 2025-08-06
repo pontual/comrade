@@ -46,7 +46,7 @@ public class LocationController {
             ))
     })
     @GetMapping("/{requesterId}")
-    public ResponseEntity<List<LocationDTO>> getByRequesterId(@PathVariable Long requesterId) {
+    public ResponseEntity<List<LocationDTO>> getByRequesterId(@PathVariable Integer requesterId) {
         List<LocationDTO> response = locationApplicationService.getByRequesterId(requesterId);
         return ResponseEntity.ok(response);
     }

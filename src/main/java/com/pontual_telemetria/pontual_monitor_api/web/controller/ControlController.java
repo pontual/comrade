@@ -45,9 +45,9 @@ public class ControlController {
                     schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
-    @GetMapping()
-    public ResponseEntity<List<ControlDTO>> getControls() {
-        List<ControlDTO> response = controlApplicationService.getControls();
+    @GetMapping("/{externalId}")
+    public ResponseEntity<List<ControlDTO>> getControlsByExternalId(@PathVariable Long externalId) {
+        List<ControlDTO> response = controlApplicationService.getControlsByExternalId(externalId);
         return ResponseEntity.ok(response);
     }
 
