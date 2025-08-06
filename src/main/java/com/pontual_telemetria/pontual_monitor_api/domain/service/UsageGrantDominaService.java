@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,23 +46,15 @@ public class UsageGrantDominaService {
 
         List<UsageGrantMonthly> monthlyList = new ArrayList<>();
 
-        final BigDecimal zero = BigDecimal.ZERO;
-
-        YearMonth current = YearMonth.from(usageGrantRequestDTO.getStartDate());
-        YearMonth end = YearMonth.from(usageGrantRequestDTO.getEndDate());
-
-        while (!current.isAfter(end)) {
+        for (int month = 1; month <= 12; month++) {
             monthlyList.add(UsageGrantMonthly.builder()
                     .usageGrant(usageGrant)
-                    .year(current.getYear())
-                    .month(current.getMonthValue())
-                    .flowRate(zero)
-                    .hoursDay(zero)
-                    .daysMonth(zero)
-                    .maximumVolume(zero)
+                    .month(month)
+                    .flowRate(null)
+                    .hoursDay(null)
+                    .daysMonth(null)
+                    .maximumVolume(null)
                     .build());
-
-            current = current.plusMonths(1);
         }
 
         usageGrant.setMonthlyGrants(monthlyList);

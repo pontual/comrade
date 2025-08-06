@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class UsageGrantMonthlyDTO {
     private Long id;
-    private Integer year;
     private Integer month;
     private BigDecimal flowRate;
     private BigDecimal hoursDay;

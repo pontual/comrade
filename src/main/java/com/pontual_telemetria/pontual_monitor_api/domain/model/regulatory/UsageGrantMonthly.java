@@ -16,11 +16,11 @@ import java.math.BigDecimal;
         name = Constants.TABLE_USAGE_GRANT_MONTHLY,
         schema = Constants.SCHEMA_REGULATORY,
         uniqueConstraints = {
-                @UniqueConstraint(name = "uq_usage_grant_monthly", columnNames = {"usage_grant_id", "year", "month"})
+                @UniqueConstraint(name = "uq_usage_grant_monthly", columnNames = {"usage_grant_id", "month"})
         },
         indexes = {
                 @Index(name = "idx_grant_monthly_grant_id", columnList = "usage_grant_id"),
-                @Index(name = "idx_grant_monthly_year_month", columnList = "year, month")
+                @Index(name = "idx_grant_monthly_month", columnList = "month")
         }
 )
 public class UsageGrantMonthly {
@@ -35,9 +35,6 @@ public class UsageGrantMonthly {
             foreignKey = @ForeignKey(name = "fk_usage_grant_monthly")
     )
     private UsageGrant usageGrant;
-
-    @Column(nullable = false)
-    private Integer year;
 
     @Column(nullable = false)
     private Integer month;
