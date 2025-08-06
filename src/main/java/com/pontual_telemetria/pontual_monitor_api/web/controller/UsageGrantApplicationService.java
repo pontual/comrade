@@ -5,7 +5,9 @@ import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageG
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.service.UsageGrantDominaService;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantMonthlyDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantRequestDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,5 +40,12 @@ public class UsageGrantApplicationService {
         log.info("[DELETE-USAGE-GRANT] Iniciada a exclusão da outorga anual id={}", id);
         usageGrantDominaService.delete(id);
         log.info("[DELETE-USAGE-GRANT] Outorga anual id={} apagada com sucesso", id);
+    }
+
+    @Transactional
+    public void updateAllMonthly(List<UsageGrantMonthlyDTO> usageGrantMonthlyDTO) {
+        log.info("[UPDATE-USAGE-GRANT] Iniciada a atualização dos dados mensais da outorga");
+        usageGrantDominaService.updateAllMonthly(usageGrantMonthlyDTO);
+        log.info("[UPDATE-USAGE-GRANT] Finalizada a atualização dos dados mensais da outorga");
     }
 }

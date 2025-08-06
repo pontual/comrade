@@ -1,6 +1,7 @@
 package com.pontual_telemetria.pontual_monitor_api.web.controller;
 
 import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantMonthlyDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantRequestDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -88,6 +89,27 @@ public class UsageGrantController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         usageGrantApplicationService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Atualiza informações da outorga",
+            description = "Atualiza dados mensais da outorga"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Outorga atualizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            ))
+    })
+    @PutMapping("/monthly")
+    ResponseEntity<Void> updateMonthly(@RequestBody @Valid List<UsageGrantMonthlyDTO> usageGrantMonthlyDTO) {
+        usageGrantApplicationService.updateAllMonthly(usageGrantMonthlyDTO);
         return ResponseEntity.noContent().build();
     }
 }

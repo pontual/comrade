@@ -1,5 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.domain.service;
 
+import com.pontual_telemetria.pontual_monitor_api.application.mapper.UsageGrantMonthlyMapper;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.PontualMonitorException;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.customer.Location;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrant;
@@ -7,6 +8,7 @@ import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageG
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.LocationRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantMonthlyRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantRepository;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantMonthlyDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.regulatory.UsageGrantRequestDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -23,8 +25,9 @@ import java.util.List;
 public class UsageGrantDominaService {
 
     private final UsageGrantRepository usageGrantRepository;
-    private final UsageGrantMonthlyRepository usageGrantMonthlyRepository;
     private final LocationRepository locationRepository;
+    private final UsageGrantMonthlyRepository usageGrantMonthlyRepository;
+    private final UsageGrantMonthlyMapper usageGrantMonthlyMapper;
 
     @Transactional
     public void create(UsageGrantRequestDTO usageGrantRequestDTO) {
@@ -71,5 +74,18 @@ public class UsageGrantDominaService {
                                 "Nenhum registro foi encontrado para a outorga informada.")
                         )
         );
+    }
+
+    public void updateAllMonthly(List<UsageGrantMonthlyDTO> usageGrantMonthlyList) {
+        List<UsageGrantMonthly> entity = usageGrantMonthlyMapper.toEntity(usageGrantMonthlyList);
+        for (UsageGrantMonthly usageGrantMonthly : entity) {
+            usageGrantMonthlyRepository.updateMonthly(
+                    usageGrantMonthly.getId(),
+                    usageGrantMonthly.getFlowRate(),
+                    usageGrantMonthly.getHoursDay(),
+                    usageGrantMonthly.getDaysMonth(),
+                    usageGrantMonthly.getMaximumVolume()
+            );
+        }
     }
 }
