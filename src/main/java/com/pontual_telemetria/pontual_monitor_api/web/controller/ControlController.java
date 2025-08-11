@@ -1,9 +1,9 @@
 package com.pontual_telemetria.pontual_monitor_api.web.controller;
 
 import com.pontual_telemetria.pontual_monitor_api.application.service.ControlApplicationService;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlDTO;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingRequestDTO;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingResponseDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlReadingRequestDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlReadingResponseDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

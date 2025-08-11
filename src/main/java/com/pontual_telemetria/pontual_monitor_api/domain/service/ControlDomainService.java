@@ -10,9 +10,10 @@ import com.pontual_telemetria.pontual_monitor_api.domain.repository.ControlReadi
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.ControlRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.DeviceRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.LocationRepository;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlDTO;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingRequestDTO;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.control.ControlReadingResponseDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlReadingRequestDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlReadingResponseDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,9 @@ public class ControlDomainService {
     private final ControlReadingDataRepository controlReadingDataRepository;
     private final ControlReadingMapper controlReadingMapper;
 
+    @Transactional
     public void create(ControlDTO controlDTO){
+        boolean isCreateOperation = true;
         Location location = locationRepository.findByExternalId(controlDTO.getLocationId());
 
         if(location == null){
@@ -46,10 +49,12 @@ public class ControlDomainService {
                 .build();
 
         controlRepository.save(control);
-        updateLinkDevice(controlDTO.getDeviceId(), location.getLocationName());
+        updateLinkDevice(isCreateOperation, controlDTO.getDeviceId(), location.getLocationName());
     }
 
+    @Transactional
     public void disable(Long id){
+        boolean isCreateOperation = false;
         Control control = controlRepository.findById(id).orElse(null);
         LocalDateTime now = LocalDateTime.now();
 
@@ -57,7 +62,7 @@ public class ControlDomainService {
             control.setActive(false);
             control.setDtDeviceDeactivation(now);
             controlRepository.save(control);
-            updateLinkDevice(control.getDeviceId());
+            updateLinkDevice(isCreateOperation, control.getDeviceId(), null);
         } else {
             throw new PontualMonitorException(
                     "Controle não encontrado",
@@ -68,11 +73,16 @@ public class ControlDomainService {
         }
     }
 
-    public void updateLinkDevice(String deviceId){
-        Device device = deviceRepository.getDeviceByIdentifier(deviceId);
+    @Transactional
+    public void updateLinkDevice(boolean isCreateOperation, String identifier, String locationName) {
+        Device device = deviceRepository.getDeviceByIdentifier(identifier);
 
-        if(device != null){
-            device.setLinkedPatrimony(null);
+        if(device != null) {
+            if(isCreateOperation){
+                device.setLinkedPatrimony(locationName);
+            } else {
+                device.setLinkedPatrimony(null);
+            }
             deviceRepository.save(device);
         }
     }
@@ -87,15 +97,7 @@ public class ControlDomainService {
         return controlReadingMapper.toDtoList(controlReadings);
     }
 
-    public void updateLinkDevice(String identifier, String locationName) {
-        Device device = deviceRepository.getDeviceByIdentifier(identifier);
-
-        if(device != null) {
-            device.setLinkedPatrimony(locationName);
-            deviceRepository.save(device);
-        }
-    }
-
+    @Transactional
     public void createReadingData(List<ControlReadingRequestDTO> controlReadingRequestDTO){
         if(controlReadingRequestDTO == null || controlReadingRequestDTO.isEmpty()){
             throw new PontualMonitorException(

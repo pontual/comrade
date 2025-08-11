@@ -1,4 +1,4 @@
-package com.pontual_telemetria.pontual_monitor_api.web.dto.control;
+package com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
