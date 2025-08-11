@@ -11,6 +11,7 @@ import com.pontual_telemetria.pontual_monitor_api.web.dto.user.AccountUserDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.user.ResetPasswordDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.user.UserRequestDTO;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,8 +33,10 @@ public class UserDomainService {
                 .person(person)
                 .enabled(userRequest.isEnabled())
                 .build();
+
     }
 
+    @Transactional
     public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
         AccountUser accountUser = userRepository.findByUsername(resetPasswordDTO.getUsername());
         if (accountUser == null) {
@@ -56,6 +59,7 @@ public class UserDomainService {
         userRepository.save(accountUser);
     }
 
+    @Transactional
     public void update(AccountUserDTO accountUserDTO) {
         AccountUser user = userRepository.findById(accountUserDTO.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Conta de usuário não encontrada"));
@@ -69,6 +73,7 @@ public class UserDomainService {
         user.setEnabled(accountUserDTO.getEnabled());
     }
 
+    @Transactional
     public void delete(Long id) {
         AccountUser user = userRepository.findById(id)
                 .orElseThrow(() -> new PontualMonitorException(

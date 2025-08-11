@@ -5,6 +5,7 @@ import com.pontual_telemetria.pontual_monitor_api.domain.exception.PontualMonito
 import com.pontual_telemetria.pontual_monitor_api.domain.model.monitoring.Device;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.DeviceRepository;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.DeviceDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class DeviceDomainService {
     private final DeviceRepository deviceRepository;
     private final DeviceMapper deviceMapper;
 
+    @Transactional
     public void create(DeviceDTO deviceDTO) {
         LocalDateTime now = LocalDateTime.now();
         boolean isDeviceExists = deviceRepository.existsByIdentifier(deviceDTO.getIdentifier());
@@ -36,6 +38,7 @@ public class DeviceDomainService {
         }
     }
 
+    @Transactional
     public void update(Long id, boolean status){
         Device device = deviceRepository.getDeviceById(id);
 
@@ -52,6 +55,7 @@ public class DeviceDomainService {
         }
     }
 
+    @Transactional
     public void delete(Long id){
         Device device = deviceRepository.getDeviceById(id);
         deviceRepository.delete(device);

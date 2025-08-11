@@ -4,6 +4,7 @@ import com.pontual_telemetria.pontual_monitor_api.application.mapper.SgmanToLoca
 import com.pontual_telemetria.pontual_monitor_api.domain.model.customer.Location;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.LocationRepository;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.sgman.location.SgmanLocationDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ public class LocationDomainService {
     private final LocationRepository locationRepository;
     private final SgmanToLocationMapper sgmanToLocationMapper;
 
+    @Transactional
     public void updateLocationBySgman(List<SgmanLocationDTO> sgmanLocationDTO) {
         for(SgmanLocationDTO locationDTO : sgmanLocationDTO) {
             boolean exists = locationRepository.existsByExternalId(locationDTO.getId());

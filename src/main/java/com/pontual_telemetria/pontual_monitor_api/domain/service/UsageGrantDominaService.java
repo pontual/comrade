@@ -64,6 +64,7 @@ public class UsageGrantDominaService {
         usageGrantRepository.save(usageGrant);
     }
 
+    @Transactional
     public void delete(Long id) {
         usageGrantRepository.delete(
                 usageGrantRepository.findById(id)
@@ -76,6 +77,7 @@ public class UsageGrantDominaService {
         );
     }
 
+    @Transactional
     public void updateAllMonthly(List<UsageGrantMonthlyDTO> usageGrantMonthlyList) {
         List<UsageGrantMonthly> entity = usageGrantMonthlyMapper.toEntity(usageGrantMonthlyList);
         for (UsageGrantMonthly usageGrantMonthly : entity) {
