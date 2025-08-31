@@ -18,6 +18,7 @@ import java.util.List;
 @Table(name = Constants.TABLE_USAGE_GRANT, schema = Constants.SCHEMA_REGULATORY,
         indexes = {
                 @Index(name = "idx_usage_grant_location_id", columnList = "location_id"),
+                @Index(name = "idx_usage_grant_external_id", columnList = "external_id"),
                 @Index(name = "idx_usage_grant_identifier", columnList = "identifier"),
                 @Index(name = "idx_usage_grant_dates", columnList = "start_date, end_date")
         }
@@ -36,6 +37,9 @@ public class UsageGrant {
     )
 
     private Location location;
+
+    @Column(name = "external_id", nullable = false)
+    private Long externalId;
 
     @Column(nullable = false, length = 100)
     private String identifier;

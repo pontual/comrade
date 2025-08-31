@@ -39,6 +39,7 @@ public class UsageGrantDominaService {
 
         UsageGrant usageGrant = UsageGrant.builder()
                 .location(location)
+                .externalId(location.getExternalId())
                 .identifier(usageGrantRequestDTO.getIdentifier())
                 .startDate(usageGrantRequestDTO.getStartDate())
                 .endDate(usageGrantRequestDTO.getEndDate())

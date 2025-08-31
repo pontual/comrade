@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class InstantaneousFlowRateResponseDTO {
     private Long id;
     private Long locationId;
+    private Long externalId;
     private BigDecimal measurement;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

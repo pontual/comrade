@@ -28,6 +28,7 @@ public class InstantaneousFlowRateDomainService {
 
         InstantaneousFlowRate entity = InstantaneousFlowRate.builder()
                 .location(location)
+                .externalId(location.getExternalId())
                 .measurement(instantaneousFlowRateRequestDTO.getMeasurement())
                 .startDate(instantaneousFlowRateRequestDTO.getStartDate())
                 .endDate(instantaneousFlowRateRequestDTO.getEndDate())

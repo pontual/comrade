@@ -14,6 +14,7 @@ import java.util.List;
 public class UsageGrantDTO {
     private Long id;
     private Long locationId;
+    private Long externalId;
     private String identifier;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

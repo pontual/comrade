@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ControlReadingDataRepository extends JpaRepository<ControlReading, Long> {
     List<ControlReading> findAllByLocationId(Long locationId);
+    List<ControlReading> findAllByExternalId(Long externalId);
 }

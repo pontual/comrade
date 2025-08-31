@@ -120,6 +120,7 @@ public class ControlDomainService {
         for(ControlReading reading : list) {
             reading.setControl(control);
             reading.setLocation(location);
+            reading.setExternalId(location.getExternalId());
         }
 
         controlReadingDataRepository.saveAll(list);

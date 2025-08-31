@@ -44,16 +44,19 @@ public class ControlReading {
         )
         private Location location;
 
+        @Column(name = "external_id", nullable = false)
+        private Long externalId;
+
         @Column(name = "reading_value", precision = 10, scale = 3)
         private BigDecimal readingValue;
 
         @Column(name = "dt_reading")
         private LocalDateTime dtReading;
 
-        @Column(name = "created_by", length = 255)
+        @Column(name = "created_by")
         private String createdBy;
 
-        @Column(name = "observation", length = 255)
+        @Column(name = "observation")
         private String observation;
 
         @Column(name = "status", length = 100)

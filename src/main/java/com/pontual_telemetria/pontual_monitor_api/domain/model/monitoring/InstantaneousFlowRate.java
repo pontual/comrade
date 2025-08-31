@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
         schema = Constants.SCHEMA_MONITORING,
         indexes = {
                 @Index(name = "idx_flow_location_id", columnList = "location_id"),
+                @Index(name = "idx_flow_external_id", columnList = "external_id"),
                 @Index(name = "idx_flow_start_end_date", columnList = "start_date, end_date")
         }
 )
@@ -35,6 +36,9 @@ public class InstantaneousFlowRate {
             foreignKey = @ForeignKey(name = "fk_flow_location")
     )
     private Location location;
+
+    @Column(name = "external_id", nullable = false)
+    private Long externalId;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal measurement;

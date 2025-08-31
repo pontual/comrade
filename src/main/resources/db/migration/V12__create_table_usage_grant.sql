@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS sch_regulatory.usage_grant (
     id SERIAL PRIMARY KEY,
     location_id INTEGER NOT NULL,
+    external_id BIGINT NOT NULL,
     identifier VARCHAR(100) NOT NULL,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL,
@@ -18,5 +19,6 @@ ALTER TABLE sch_regulatory.usage_grant
     OWNER TO "UserPontual";
 
 CREATE INDEX IF NOT EXISTS idx_usage_grant_location_id ON sch_regulatory.usage_grant (location_id);
+CREATE INDEX IF NOT EXISTS idx_usage_grant_external_id ON sch_regulatory.usage_grant (external_id);
 CREATE INDEX IF NOT EXISTS idx_usage_grant_identifier ON sch_regulatory.usage_grant (identifier);
 CREATE INDEX IF NOT EXISTS idx_usage_grant_dates ON sch_regulatory.usage_grant (start_date, end_date);
