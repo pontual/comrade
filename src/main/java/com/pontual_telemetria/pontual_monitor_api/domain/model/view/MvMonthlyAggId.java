@@ -22,9 +22,4 @@ public class MvMonthlyAggId implements Serializable {
 
     @Column(name = "ym")
     private LocalDate ym;
-
-    public MvMonthlyAggId(Long externalId, LocalDate ym) {
-        this.externalId = externalId;
-        this.ym = ym;
-    }
 }

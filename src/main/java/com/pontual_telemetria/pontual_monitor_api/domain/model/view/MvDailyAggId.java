@@ -22,9 +22,4 @@ public class MvDailyAggId implements Serializable {
 
     @Column(name = "day")
     private LocalDate day;
-
-    public MvDailyAggId(Long externalId, LocalDate day) {
-        this.externalId = externalId;
-        this.day = day;
-    }
 }
