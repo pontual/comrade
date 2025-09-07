@@ -4,9 +4,7 @@ import com.pontual_telemetria.pontual_monitor_api.domain.model.monitoring.Contro
 import com.pontual_telemetria.pontual_monitor_api.domain.model.monitoring.InstantaneousFlowRate;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrant;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrantMonthly;
-import com.pontual_telemetria.pontual_monitor_api.domain.repository.ControlReadingDataRepository;
-import com.pontual_telemetria.pontual_monitor_api.domain.repository.InstantaneousFlowRateRepository;
-import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantRepository;
+import com.pontual_telemetria.pontual_monitor_api.domain.repository.*;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.DailyVolumeDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.InfoPanelDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.MonthlyVolumeDTO;
@@ -27,7 +25,16 @@ public class DashboardDomainService {
 
     private final InstantaneousFlowRateRepository instantaneousFlowRateRepository;
     private final ControlReadingDataRepository controlReadingDataRepository;
+    private final MVMonthlyAggRepository mvMonthlyAggRepository;
     private final UsageGrantRepository usageGrantRepository;
+    private final MVDailyAggRepository mvDailyAggRepository;
+
+
+    private static final DateTimeFormatter MMYYYY = DateTimeFormatter.ofPattern("MM/yyyy");
+
+    public List<Integer> listAvailableYears(Long externalId) {
+        return mvDailyAggRepository.findAvailableYears(externalId);
+    }
 
     public InfoPanelDTO dashboardInfo(Long externalId) {
         InfoPanelDTO infoPanelDTO = new InfoPanelDTO();
@@ -43,35 +50,89 @@ public class DashboardDomainService {
         return infoPanelDTO;
     }
 
-    private List<MonthlyVolumeDTO> buildMonthlyVolume(Long externalId) {
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+    public List<MonthlyVolumeDTO> buildMonthlyVolumeByYear(Long externalId, int year) {
+        var rows = mvMonthlyAggRepository.findMonthlyAggByYear(externalId, year);
+        if (rows == null || rows.isEmpty()) return List.of();
 
-        List<ControlReading> controlReading =
-                controlReadingDataRepository.findAllByExternalId(externalId);
+        return rows.stream()
+                .map(r -> new MonthlyVolumeDTO(
+                        MMYYYY.format(YearMonth.from(r.getYm())),
+                        r.getMonthlyVolume()
+                ))
+                .toList();
+    }
 
-        if (controlReading == null || controlReading.isEmpty()) {
-            return List.of();
+    public List<DailyVolumeDTO> buildDailyVolumeByYear(Long externalId, int year) {
+        var rows = mvDailyAggRepository.findDailyAggByYear(externalId, year);
+        if (rows == null || rows.isEmpty()) return List.of();
+
+        Map<Integer, BigDecimal> hoursDayByMonth = usageGrantRepository
+                .findFirstByExternalIdOrderByStartDateDesc(externalId)
+                .map(ug -> ug.getMonthlyGrants().stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(
+                                UsageGrantMonthly::getMonth,
+                                m -> Optional.ofNullable(m.getHoursDay()).orElse(BigDecimal.ZERO),
+                                (a,b)->a)))
+                .orElseGet(Collections::emptyMap);
+
+        List<DailyVolumeDTO> out = new ArrayList<>(rows.size());
+        for (var r : rows) {
+            LocalDate day = r.getDay();
+            BigDecimal maxDailyOpHours =
+                    hoursDayByMonth.getOrDefault(YearMonth.from(day).getMonthValue(), BigDecimal.ZERO);
+
+            out.add(new DailyVolumeDTO(
+                    day.toString(),
+                    r.getDailyPulseDiff(),
+                    r.getDailyOpHours(),
+                    maxDailyOpHours,
+                    r.getInstFlowRate(),
+                    r.getCalculatedDailyMeasure()
+            ));
         }
+        return out;
+    }
 
-        Map<YearMonth, BigDecimal> sumByMonth = controlReading.stream()
-                .filter(cr -> cr != null && cr.getDtReading() != null)
+    public InfoPanelDTO dashboardInfoByYear(Long externalId, int year) {
+        var dto = new InfoPanelDTO();
+        dto.setLocationId(externalId);
+
+        var monthly = buildMonthlyVolumeByYear(externalId, year);
+        var daily   = buildDailyVolumeByYear(externalId, year);
+
+        dto.setMonthlyVolumeList(monthly);
+        dto.setDailyVolumeList(daily);
+        dto.setUsageGrantDashboardInfo(
+                buildUsageGrantVolumeInfo(externalId, daily)
+        );
+        return dto;
+    }
+
+    private List<MonthlyVolumeDTO> buildMonthlyVolume(Long externalId) {
+        List<DailyVolumeDTO> daily = buildDailyVolume(externalId);
+        if (daily.isEmpty()) return List.of();
+
+        Map<YearMonth, BigDecimal> sumByMonth = daily.stream()
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(
-                        cr -> YearMonth.from(cr.getDtReading()),
+                        d -> YearMonth.from(LocalDate.parse(d.getDay())),
                         TreeMap::new,
                         Collectors.reducing(
                                 BigDecimal.ZERO,
-                                cr -> normalizeValue(cr.getReadingValue()),
+                                d -> normalizeValue(d.getCalculatedDailyMeasure()),
                                 BigDecimal::add
                         )
                 ));
 
         return sumByMonth.entrySet().stream()
                 .map(e -> new MonthlyVolumeDTO(
-                        e.getKey().format(formatter),
+                        e.getKey().format(MMYYYY),
                         e.getValue()
                 ))
                 .toList();
     }
+
 
     private List<UsageGrantDashboardInfoDTO> buildUsageGrantVolumeInfo(
             Long externalId,
