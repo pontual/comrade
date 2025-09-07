@@ -109,7 +109,9 @@ public class DashboardDomainService {
                             .map(m -> normalizeValue(m.getMaximumVolume()))
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    BigDecimal averageFlow = totalVolume.divide(totalDuration, RoundingMode.HALF_EVEN);
+                    BigDecimal averageFlow = totalDuration.signum() == 0
+                            ? BigDecimal.ZERO
+                            : totalVolume.divide(totalDuration, 6, RoundingMode.HALF_EVEN);
 
                     return months.stream()
                             .map(m -> {
