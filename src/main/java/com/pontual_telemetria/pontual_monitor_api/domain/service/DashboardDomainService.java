@@ -29,7 +29,6 @@ public class DashboardDomainService {
     private final UsageGrantRepository usageGrantRepository;
     private final MVDailyAggRepository mvDailyAggRepository;
 
-
     private static final DateTimeFormatter MMYYYY = DateTimeFormatter.ofPattern("MM/yyyy");
 
     public List<Integer> listAvailableYears(Long externalId) {
@@ -62,12 +61,18 @@ public class DashboardDomainService {
                 .toList();
     }
 
+    private Optional<UsageGrant> findLatestUsageGrant(Long externalId) {
+        return usageGrantRepository
+                .findAllByExternalIdOrderByStartDateDesc(externalId) // sem LIMIT
+                .stream()
+                .findFirst();
+    }
+
     public List<DailyVolumeDTO> buildDailyVolumeByYear(Long externalId, int year) {
         var rows = mvDailyAggRepository.findDailyAggByYear(externalId, year);
         if (rows == null || rows.isEmpty()) return List.of();
 
-        Map<Integer, BigDecimal> hoursDayByMonth = usageGrantRepository
-                .findFirstByExternalIdOrderByStartDateDesc(externalId)
+        Map<Integer, BigDecimal> hoursDayByMonth = findLatestUsageGrant(externalId)
                 .map(ug -> ug.getMonthlyGrants().stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toMap(
@@ -133,7 +138,6 @@ public class DashboardDomainService {
                 .toList();
     }
 
-
     private List<UsageGrantDashboardInfoDTO> buildUsageGrantVolumeInfo(
             Long externalId,
             List<DailyVolumeDTO> dailyVolumes
@@ -150,7 +154,7 @@ public class DashboardDomainService {
                         )
                 ));
 
-        return usageGrantRepository.findFirstByExternalIdOrderByStartDateDesc(externalId)
+        return findLatestUsageGrant(externalId)
                 .map(usageGrant -> {
                     LocalDate startDate = usageGrant.getStartDate().toLocalDate();
                     YearMonth startYm = YearMonth.from(startDate);
@@ -215,9 +219,7 @@ public class DashboardDomainService {
                 controlReadingDataRepository.findAllByExternalId(externalId);
 
         if (readings == null || readings.isEmpty()) return List.of();
-
-        Map<Integer, BigDecimal> hoursDayByMonth = usageGrantRepository
-                .findFirstByExternalIdOrderByStartDateDesc(externalId)
+        Map<Integer, BigDecimal> hoursDayByMonth = findLatestUsageGrant(externalId)
                 .map(usageGrant -> usageGrant.getMonthlyGrants().stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toMap(
@@ -295,9 +297,7 @@ public class DashboardDomainService {
         return instantaneousFlowRateRepository
                 .findEffectiveForPeriod(externalId, start, end)
                 .map(InstantaneousFlowRate::getMeasurement)
-                .or(() -> usageGrantRepository
-                        .findFirstByExternalIdOrderByStartDateDesc(externalId)
-                        .map(UsageGrant::getMaximumFlowRate))
+                .or(() -> findLatestUsageGrant(externalId).map(UsageGrant::getMaximumFlowRate))
                 .orElse(BigDecimal.ZERO);
     }
 

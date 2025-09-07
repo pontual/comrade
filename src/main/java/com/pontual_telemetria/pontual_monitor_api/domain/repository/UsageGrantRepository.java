@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface UsageGrantRepository extends JpaRepository<UsageGrant, Long> {
@@ -14,5 +13,5 @@ public interface UsageGrantRepository extends JpaRepository<UsageGrant, Long> {
     List<UsageGrant> getAllByLocationId(Long locationId);
 
     @EntityGraph(attributePaths = "monthlyGrants")
-    Optional<UsageGrant> findFirstByExternalIdOrderByStartDateDesc(Long locationId);
+    List<UsageGrant> findAllByExternalIdOrderByStartDateDesc(Long externalId);
 }
