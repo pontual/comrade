@@ -63,7 +63,7 @@ public class DashboardDomainService {
 
     private Optional<UsageGrant> findLatestUsageGrant(Long externalId) {
         return usageGrantRepository
-                .findAllByExternalIdOrderByStartDateDesc(externalId) // sem LIMIT
+                .findAllByExternalIdOrderByStartDateDesc(externalId)
                 .stream()
                 .findFirst();
     }
@@ -180,26 +180,25 @@ public class DashboardDomainService {
 
                     return months.stream()
                             .map(m -> {
-                                int monthIndex = normalizeValue(BigDecimal.valueOf(
-                                        Optional.ofNullable(m.getMonth()).orElse(1))).intValue();
+                                int calendarMonth = Optional.ofNullable(m.getMonth()).orElse(1);
 
-                                YearMonth ym = startYm.plusMonths(monthIndex - 1L);
+                                YearMonth ymResolved = opHoursByMonth.keySet().stream()
+                                        .filter(k -> k != null && k.getMonthValue() == calendarMonth)
+                                        .findFirst()
+                                        .orElse(YearMonth.of(startYm.getYear(), calendarMonth));
 
                                 BigDecimal monthlyOperationHours = opHoursByMonth
-                                        .getOrDefault(ym, BigDecimal.ZERO)
+                                        .getOrDefault(ymResolved, BigDecimal.ZERO)
                                         .setScale(1, RoundingMode.HALF_UP);
 
                                 BigDecimal monthlyUsageGrantVolume = normalizeValue(m.getMaximumVolume());
-
                                 BigDecimal hoursDay  = normalizeValue(m.getHoursDay());
                                 BigDecimal daysMonth = normalizeValue(m.getDaysMonth());
                                 BigDecimal monthDuration = hoursDay.multiply(daysMonth);
-
-                                BigDecimal maxMonthlyOperationHours = monthDuration
-                                        .setScale(1, RoundingMode.HALF_UP);
+                                BigDecimal maxMonthlyOperationHours = monthDuration.setScale(1, RoundingMode.HALF_UP);
 
                                 return new UsageGrantDashboardInfoDTO(
-                                        monthIndex,
+                                        calendarMonth,
                                         monthlyUsageGrantVolume,
                                         monthDuration,
                                         monthlyOperationHours,
