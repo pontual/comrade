@@ -72,3 +72,9 @@ FROM with_flow f;
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_mv_daily_agg_ext_day
     ON sch_view.mv_daily_agg (external_id, day);
+
+CREATE INDEX IF NOT EXISTS idx_usage_grant_loc_dates
+    ON sch_regulatory.usage_grant (location_id, start_date, end_date);
+
+CREATE INDEX IF NOT EXISTS idx_ugm_grant_month
+    ON sch_regulatory.usage_grant_monthly (usage_grant_id, month);
