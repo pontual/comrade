@@ -15,15 +15,16 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
       SELECT
         :year AS y,
         make_date(:year, 1, 1)::date  AS start_date,
-        make_date(:year,12,31)::date  AS end_date
+        make_date(:year,12,31)::date  AS end_date,
+        (make_date(:year,12,31) + INTERVAL '1 day')::date AS end_date_plus1
     ),
-    -- external_ids desse location com outorga válida em algum dia do ano
+    -- external_ids do location com outorga que sobrepõe o ano
     exts AS (
       SELECT DISTINCT ug.external_id
       FROM sch_regulatory.usage_grant ug, params p
-      WHERE ug.location_id   = :locationId
-        AND ug.start_date::date <= p.end_date
-        AND ug.end_date::date   >= p.start_date
+      WHERE ug.location_id = :locationId
+        AND ug.start_date::date < p.end_date_plus1
+        AND (ug.end_date IS NULL OR ug.end_date::date > p.start_date)
     ),
     -- leituras da MV no ano
     base AS (
@@ -38,7 +39,7 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
       JOIN exts e   ON e.external_id = m.external_id
       WHERE m.day BETWEEN p.start_date AND p.end_date
     ),
-    -- outorga diária (quando houver sobreposição, pega a mais recente)
+    -- outorga diária (pega a mais recente quando houver sobreposição)
     grant_by_day AS (
       SELECT DISTINCT ON (ug.external_id, d::date)
         ug.external_id,
@@ -68,8 +69,19 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
       ) AS d
       WHERE ug.location_id = :locationId
         AND ug.start_date::date <= d::date
-        AND ug.end_date::date   >= d::date
+        AND (ug.end_date IS NULL OR ug.end_date::date > d::date)
       ORDER BY ug.external_id, d::date, ug.start_date DESC
+    ),
+    -- vazão máxima outorgada por external_id (outorga mais recente que sobrepõe o ano)
+    latest_grant AS (
+      SELECT DISTINCT ON (ug.external_id)
+        ug.external_id,
+        ug.maximum_flow_rate AS maximum_flow_rate
+      FROM sch_regulatory.usage_grant ug, params p
+      WHERE ug.location_id = :locationId
+        AND ug.start_date::date < p.end_date_plus1
+        AND (ug.end_date IS NULL OR ug.end_date::date > p.start_date)
+      ORDER BY ug.external_id, ug.start_date DESC
     ),
     -- agregado anual
     agg AS (
@@ -77,21 +89,15 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
         b.external_id,
         SUM(b.captured_volume_m3)   AS volume_total_operation,
         SUM(b.captured_hours)       AS duration_operation_hours,
-
-        -- vazão média captada = volume / duração
         CASE WHEN SUM(b.captured_hours) > 0
              THEN SUM(b.captured_volume_m3) / NULLIF(SUM(b.captured_hours),0)
              ELSE NULL
         END                         AS average_flow,
-
         COALESCE(SUM(g.grant_volume_m3_day), 0) AS volume_usage_grant,
         COALESCE(SUM(g.grant_hours_day),  0)    AS duration_usage_grant_hours,
-
-        -- vazão média outorgada = volume / duração
         CASE WHEN COALESCE(SUM(g.grant_hours_day),0) > 0
              THEN COALESCE(SUM(g.grant_volume_m3_day),0) / NULLIF(SUM(g.grant_hours_day),0)
         END                         AS grant_average_flow,
-
         MAX(b.day)                  AS last_read
       FROM base b
       LEFT JOIN grant_by_day g
@@ -106,12 +112,12 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
       a.volume_usage_grant,
       a.average_flow,
       a.last_read,
-
-      -- utilization = comprometimento da vazão (captada / outorgada * 100)
+      lg.maximum_flow_rate AS maximum_flow_rate,
       CASE WHEN a.grant_average_flow > 0
         THEN ROUND(100 * a.average_flow / a.grant_average_flow, 2)
       END AS utilization
     FROM agg a
+    LEFT JOIN latest_grant lg ON lg.external_id = a.external_id
     ORDER BY a.external_id
     """, nativeQuery = true)
     List<OperationSummaryProjection> summaryByLocationId(

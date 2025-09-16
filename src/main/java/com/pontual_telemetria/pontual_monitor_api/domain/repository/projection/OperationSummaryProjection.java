@@ -11,5 +11,6 @@ public interface OperationSummaryProjection {
     BigDecimal getVolume_usage_grant();
     BigDecimal getAverage_flow();
     LocalDate getLast_read();
+    BigDecimal getMaximum_flow_rate();
     BigDecimal getUtilization();
 }
