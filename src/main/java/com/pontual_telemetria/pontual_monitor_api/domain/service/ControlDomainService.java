@@ -1,6 +1,7 @@
 package com.pontual_telemetria.pontual_monitor_api.domain.service;
 
 import com.pontual_telemetria.pontual_monitor_api.application.mapper.ControlReadingMapper;
+import com.pontual_telemetria.pontual_monitor_api.domain.event.RefreshNeededEvent;
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.PontualMonitorException;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.customer.Location;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.monitoring.Control;
@@ -13,10 +14,12 @@ import com.pontual_telemetria.pontual_monitor_api.domain.repository.LocationRepo
 import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlReadingRequestDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlReadingResponseDTO;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +33,7 @@ public class ControlDomainService {
     private final DeviceRepository deviceRepository;
     private final ControlReadingDataRepository controlReadingDataRepository;
     private final ControlReadingMapper controlReadingMapper;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public void create(ControlDTO controlDTO){
@@ -123,6 +127,7 @@ public class ControlDomainService {
             reading.setExternalId(location.getExternalId());
         }
 
-        controlReadingDataRepository.saveAll(list);
+        controlReadingDataRepository.saveAllAndFlush(list);
+        publisher.publishEvent(new RefreshNeededEvent(location.getId()));
     }
 }

@@ -58,3 +58,9 @@ logging:
   level:
     feign: DEBUG
     org.springframework.security: INFO
+
+refresh:
+  mviews:
+    enabled: true
+    debounce-seconds: 10
+    lock-base-key: 42000

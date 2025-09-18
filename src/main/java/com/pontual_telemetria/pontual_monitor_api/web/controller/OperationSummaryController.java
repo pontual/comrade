@@ -46,8 +46,8 @@ public class OperationSummaryController {
             ))
     })
     @GetMapping("/year/by-location")
-    public ResponseEntity<List<OperationSummaryDTO>> getOperationSummaryByLocationId(@RequestParam Long locationId, @RequestParam(required = false) Integer year) {
-        List<OperationSummaryDTO> response = operationSummaryApplicationService.getOperationSummaryByLocationId(locationId, year);
+    public ResponseEntity<List<OperationSummaryDTO>> getOperationSummaryByLocationId(@RequestParam Long locationId, @RequestParam(required = false) Integer year, @RequestParam(name = "awaitFresh", defaultValue = "false") boolean awaitFresh) {
+        List<OperationSummaryDTO> response = operationSummaryApplicationService.getOperationSummaryByLocationId(locationId, year, awaitFresh);
         return ResponseEntity.ok(response);
     }
 }

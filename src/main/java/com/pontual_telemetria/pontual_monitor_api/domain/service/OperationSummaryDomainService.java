@@ -17,13 +17,19 @@ public class OperationSummaryDomainService {
 
     private final OperationSummaryRepository repository;
     private final UsageGrantRepository usageGrantRepository;
+    private final MaterializedViewRefreshDomainService mvRefresh;
 
     private static LocalDate endInclusive(LocalDateTime endDateTime) {
         if (endDateTime == null) return LocalDate.of(9999,12,31);
         return endDateTime.toLocalDate().minusDays(1);
     }
 
-    public List<OperationSummaryDTO> getOperationSummaryByLocationId(Long locationId, Integer year) {
+    public List<OperationSummaryDTO> getOperationSummaryByLocationId(Long locationId, Integer year, boolean awaitFresh) {
+
+        if (awaitFresh) {
+            mvRefresh.awaitIfRefreshing(locationId, 3000);
+        }
+
         final int yearSearch = (year != null ? year : resolveYearFromLatestGrant(locationId));
 
         List<OperationSummaryProjection> data = repository.summaryByLocationId(locationId, yearSearch);
