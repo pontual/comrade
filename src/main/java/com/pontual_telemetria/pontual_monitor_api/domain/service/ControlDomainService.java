@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -111,7 +112,8 @@ public class ControlDomainService {
                     "A listagem de dados está vazia"
             );
         }
-        Long controlId = controlReadingRequestDTO.getFirst().getControlId();
+
+        Long controlId  = controlReadingRequestDTO.getFirst().getControlId();
         Integer locationId = controlReadingRequestDTO.getFirst().getLocationId();
 
         Control control = controlRepository.findById(controlId)
@@ -121,13 +123,32 @@ public class ControlDomainService {
                 .orElseThrow(() -> new IllegalArgumentException("Localização não encontrado para o ID: " + locationId));
 
         List<ControlReading> list = controlReadingMapper.toEntityList(controlReadingRequestDTO);
-        for(ControlReading reading : list) {
-            reading.setControl(control);
-            reading.setLocation(location);
-            reading.setExternalId(location.getExternalId());
+
+        LocalDateTime minTs = list.stream().map(ControlReading::getDtReading)
+                .min(LocalDateTime::compareTo).orElseThrow();
+        LocalDateTime maxTs = list.stream().map(ControlReading::getDtReading)
+                .max(LocalDateTime::compareTo).orElseThrow();
+
+        var existing = new HashSet<>(
+                controlReadingDataRepository.findExistingInstantsInRangeByLocation(Math.toIntExact(location.getId()), minTs, maxTs)
+        );
+
+        var seenInBatch = new HashSet<LocalDateTime>();
+
+        List<ControlReading> toInsert = list.stream()
+                .filter(r -> seenInBatch.add(r.getDtReading()))
+                .filter(r -> !existing.contains(r.getDtReading()))
+                .peek(r -> {
+                    r.setControl(control);
+                    r.setLocation(location);
+                    r.setExternalId(location.getExternalId());
+                })
+                .toList();
+
+        if (!toInsert.isEmpty()) {
+            controlReadingDataRepository.saveAllAndFlush(toInsert);
         }
 
-        controlReadingDataRepository.saveAllAndFlush(list);
         publisher.publishEvent(new RefreshNeededEvent(location.getId()));
     }
 }
