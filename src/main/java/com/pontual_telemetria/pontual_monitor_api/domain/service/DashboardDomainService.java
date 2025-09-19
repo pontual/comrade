@@ -30,6 +30,7 @@ public class DashboardDomainService {
     private final MVDailyAggRepository mvDailyAggRepository;
 
     private static final DateTimeFormatter MMYYYY = DateTimeFormatter.ofPattern("MM/yyyy");
+    private static final BigDecimal H24 = new BigDecimal("24");
 
     public List<Integer> listAvailableYears(Long externalId) {
         return mvDailyAggRepository.findAvailableYears(externalId);
@@ -233,53 +234,58 @@ public class DashboardDomainService {
                 .sorted(Comparator.comparing(ControlReading::getDtReading))
                 .toList();
 
-        Map<LocalDate, BigDecimal> lastValueByDay = new TreeMap<>();
+        Map<LocalDate, BigDecimal> firstValueByDay = new HashMap<>();
+        Map<LocalDate, BigDecimal> lastValueByDay  = new TreeMap<>();
         Map<LocalDate, LocalDateTime> firstTsByDay = new HashMap<>();
-        Map<LocalDate, LocalDateTime> lastTsByDay = new HashMap<>();
+        Map<LocalDate, LocalDateTime> lastTsByDay  = new HashMap<>();
 
         for (ControlReading r : sorted) {
             LocalDateTime ts = r.getDtReading();
             LocalDate day = ts.toLocalDate();
+            BigDecimal value = normalizeValue(r.getReadingValue());
 
-            lastValueByDay.put(day, normalizeValue(r.getReadingValue()));
+            firstValueByDay.putIfAbsent(day, value);
             firstTsByDay.putIfAbsent(day, ts);
+
+            lastValueByDay.put(day, value);
             lastTsByDay.put(day, ts);
         }
 
         List<DailyVolumeDTO> values = new ArrayList<>(lastValueByDay.size());
-        BigDecimal prevLast = null;
 
         for (var e : lastValueByDay.entrySet()) {
             LocalDate day = e.getKey();
             BigDecimal last = normalizeValue(e.getValue());
+            BigDecimal first = normalizeValue(firstValueByDay.get(day));
 
-            BigDecimal daily = (prevLast == null) ? last : last.subtract(prevLast);
-            if (daily.signum() < 0) daily = BigDecimal.ZERO;
+            BigDecimal dailyHours = last.subtract(first);
+            if (dailyHours.signum() < 0) {
+                dailyHours = BigDecimal.ZERO;
+            }
 
             YearMonth ym = YearMonth.from(day);
+
+            BigDecimal dailyOperationHours = dailyHours
+                    .max(BigDecimal.ZERO)
+                    .setScale(1, RoundingMode.HALF_UP);
+
+            //ativar para trava em 24h.
+            // dailyOperationHours = capTo24(dailyHours);
+
             BigDecimal instantaneousFlowRate = resolveInstantaneousFlowRate(externalId, ym);
-            BigDecimal calculatedDailyMeasure = daily.multiply(instantaneousFlowRate);
+            BigDecimal calculatedDailyMeasure = dailyOperationHours.multiply(instantaneousFlowRate);
 
-            LocalDateTime first = firstTsByDay.get(day);
-            LocalDateTime lastTs = lastTsByDay.get(day);
-
-            long minutes = (first != null && lastTs != null)
-                    ? Duration.between(first, lastTs).toMinutes()
-                    : 0;
-
-            BigDecimal dailyOperationHours = toHoursDecimal(minutes);
-            BigDecimal maxDailyOperationHours = hoursDayByMonth.getOrDefault(ym.getMonthValue(), BigDecimal.ZERO);
+            BigDecimal maxDailyOperationHours =
+                    hoursDayByMonth.getOrDefault(ym.getMonthValue(), BigDecimal.ZERO);
 
             values.add(new DailyVolumeDTO(
                     day.toString(),
-                    daily,
+                    dailyHours,
                     dailyOperationHours,
                     maxDailyOperationHours,
                     instantaneousFlowRate,
                     calculatedDailyMeasure
             ));
-
-            prevLast = last;
         }
 
         return values;
@@ -300,9 +306,12 @@ public class DashboardDomainService {
                 .orElse(BigDecimal.ZERO);
     }
 
-    private static BigDecimal toHoursDecimal(long totalMinutes) {
-        long minutes = Math.clamp(totalMinutes, 0L, 1440L);
-        return BigDecimal.valueOf(minutes)
-                .divide(BigDecimal.valueOf(60), 1, RoundingMode.HALF_UP);
+    //ativar para trava em 24h.
+    private static BigDecimal capTo24(BigDecimal hours) {
+        if (hours == null) return BigDecimal.ZERO.setScale(1, RoundingMode.HALF_UP);
+        return hours
+                .max(BigDecimal.ZERO)
+                .min(H24)
+                .setScale(1, RoundingMode.HALF_UP);
     }
 }
