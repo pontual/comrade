@@ -8,6 +8,10 @@ public record DailyCalculatedItemDTO(
         LocalDate day,
         BigDecimal mvDailyHours,
         BigDecimal dailyHoursOverride,
+        BigDecimal effDailyHours,
+        BigDecimal instFlowRate,
+        BigDecimal effVolume,
+        String source,
         String overrideUpdatedBy,
         OffsetDateTime overrideUpdatedAt
 ) {

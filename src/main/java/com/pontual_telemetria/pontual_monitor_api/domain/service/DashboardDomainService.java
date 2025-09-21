@@ -1,7 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.domain.service;
 
-import com.pontual_telemetria.pontual_monitor_api.domain.model.monitoring.ControlReading;
-import com.pontual_telemetria.pontual_monitor_api.domain.model.monitoring.InstantaneousFlowRate;
+import com.pontual_telemetria.pontual_monitor_api.application.service.DailyCalculatedDomainService;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrant;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrantMonthly;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.*;
@@ -9,7 +8,10 @@ import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.DailyVolumeD
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.InfoPanelDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.MonthlyVolumeDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.UsageGrantDashboardInfoDTO;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.dailyoperation.DailyCalculatedItemDTO;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,14 +25,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DashboardDomainService {
 
-    private final InstantaneousFlowRateRepository instantaneousFlowRateRepository;
-    private final ControlReadingDataRepository controlReadingDataRepository;
+    private final DailyCalculatedDomainService dailyCalculatedDomainService;
     private final MVMonthlyAggRepository mvMonthlyAggRepository;
     private final UsageGrantRepository usageGrantRepository;
     private final MVDailyAggRepository mvDailyAggRepository;
 
     private static final DateTimeFormatter MMYYYY = DateTimeFormatter.ofPattern("MM/yyyy");
     private static final BigDecimal H24 = new BigDecimal("24");
+
+    @Value("${dashboard.daily.limit-to-24h:false}")
+    private boolean capTo24;
 
     public List<Integer> listAvailableYears(Long externalId) {
         return mvDailyAggRepository.findAvailableYears(externalId);
@@ -215,95 +219,41 @@ public class DashboardDomainService {
     }
 
     private List<DailyVolumeDTO> buildDailyVolume(Long externalId) {
-        List<ControlReading> readings =
-                controlReadingDataRepository.findAllByExternalId(externalId);
+        List<DailyCalculatedItemDTO> rows = dailyCalculatedDomainService.getCalculated(externalId);
+        if (rows == null || rows.isEmpty()) return List.of();
 
-        if (readings == null || readings.isEmpty()) return List.of();
         Map<Integer, BigDecimal> hoursDayByMonth = findLatestUsageGrant(externalId)
-                .map(usageGrant -> usageGrant.getMonthlyGrants().stream()
-                        .filter(Objects::nonNull)
+                .map(ug -> ug.getMonthlyGrants().stream()
                         .collect(Collectors.toMap(
                                 UsageGrantMonthly::getMonth,
                                 m -> Optional.ofNullable(m.getHoursDay()).orElse(BigDecimal.ZERO),
-                                (a, b) -> a
-                        ))
-                ).orElseGet(Collections::emptyMap);
+                                (a, b) -> a)))
+                .orElseGet(Collections::emptyMap);
 
-        List<ControlReading> sorted = readings.stream()
-                .filter(r -> r != null && r.getDtReading() != null && r.getReadingValue() != null)
-                .sorted(Comparator.comparing(ControlReading::getDtReading))
-                .toList();
-
-        Map<LocalDate, BigDecimal> firstValueByDay = new HashMap<>();
-        Map<LocalDate, BigDecimal> lastValueByDay  = new TreeMap<>();
-        Map<LocalDate, LocalDateTime> firstTsByDay = new HashMap<>();
-        Map<LocalDate, LocalDateTime> lastTsByDay  = new HashMap<>();
-
-        for (ControlReading r : sorted) {
-            LocalDateTime ts = r.getDtReading();
-            LocalDate day = ts.toLocalDate();
-            BigDecimal value = normalizeValue(r.getReadingValue());
-
-            firstValueByDay.putIfAbsent(day, value);
-            firstTsByDay.putIfAbsent(day, ts);
-
-            lastValueByDay.put(day, value);
-            lastTsByDay.put(day, ts);
-        }
-
-        List<DailyVolumeDTO> values = new ArrayList<>(lastValueByDay.size());
-
-        for (var e : lastValueByDay.entrySet()) {
-            LocalDate day = e.getKey();
-            BigDecimal last = normalizeValue(e.getValue());
-            BigDecimal first = normalizeValue(firstValueByDay.get(day));
-
-            BigDecimal dailyHours = last.subtract(first);
-            if (dailyHours.signum() < 0) {
-                dailyHours = BigDecimal.ZERO;
-            }
-
+        List<DailyVolumeDTO> out = new ArrayList<>(rows.size());
+        for (DailyCalculatedItemDTO r : rows) {
+            LocalDate day = r.day();
             YearMonth ym = YearMonth.from(day);
 
-            BigDecimal dailyOperationHours = dailyHours
-                    .max(BigDecimal.ZERO)
-                    .setScale(1, RoundingMode.HALF_UP);
-
-            //ativar para trava em 24h.
-            // dailyOperationHours = capTo24(dailyHours);
-
-            BigDecimal instantaneousFlowRate = resolveInstantaneousFlowRate(externalId, ym);
-            BigDecimal calculatedDailyMeasure = dailyOperationHours.multiply(instantaneousFlowRate);
-
-            BigDecimal maxDailyOperationHours =
+            BigDecimal maxDailyOpHours =
                     hoursDayByMonth.getOrDefault(ym.getMonthValue(), BigDecimal.ZERO);
 
-            values.add(new DailyVolumeDTO(
+            BigDecimal effDailyHours = capTo24 ? capTo24(r.effDailyHours()) : r.effDailyHours();
+
+            out.add(new DailyVolumeDTO(
                     day.toString(),
-                    dailyHours,
-                    dailyOperationHours,
-                    maxDailyOperationHours,
-                    instantaneousFlowRate,
-                    calculatedDailyMeasure
+                    r.mvDailyHours(),
+                    effDailyHours,
+                    maxDailyOpHours,
+                    r.instFlowRate(),
+                    r.effVolume()
             ));
         }
-
-        return values;
+        return out;
     }
 
     private static BigDecimal normalizeValue(BigDecimal v) {
         return v != null ? v : BigDecimal.ZERO;
-    }
-
-    private BigDecimal resolveInstantaneousFlowRate(Long externalId, YearMonth ym) {
-        LocalDateTime start = ym.atDay(1).atStartOfDay();
-        LocalDateTime end   = ym.atEndOfMonth().atTime(LocalTime.MAX);
-
-        return instantaneousFlowRateRepository
-                .findEffectiveForPeriod(externalId, start, end)
-                .map(InstantaneousFlowRate::getMeasurement)
-                .or(() -> findLatestUsageGrant(externalId).map(UsageGrant::getMaximumFlowRate))
-                .orElse(BigDecimal.ZERO);
     }
 
     //ativar para trava em 24h.

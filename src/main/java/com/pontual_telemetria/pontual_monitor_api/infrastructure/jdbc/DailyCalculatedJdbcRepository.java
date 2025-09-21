@@ -22,18 +22,26 @@ public class DailyCalculatedJdbcRepository {
             day,
             mv_daily_hours        AS "mvDailyHours",
             daily_hours_override  AS "dailyHoursOverride",
+            eff_daily_hours       AS "effDailyHours",
+            inst_flow_rate        AS "instFlowRate",
+            eff_volume            AS "effVolume",
+            source                AS "source",
             override_updated_by   AS "overrideUpdatedBy",
             override_updated_at   AS "overrideUpdatedAt"
         FROM sch_monitoring.vw_daily_calculated_final
         WHERE external_id = :externalId
         ORDER BY day
-        """;
+    """;
 
     public List<DailyCalculatedItemDTO> findAllByExternalId(Long externalId) {
         return jdbc.query(SQL, Map.of("externalId", externalId), (rs, i) -> new DailyCalculatedItemDTO(
                 rs.getObject("day", LocalDate.class),
                 rs.getObject("mvDailyHours", BigDecimal.class),
                 rs.getObject("dailyHoursOverride", BigDecimal.class),
+                rs.getObject("effDailyHours", BigDecimal.class),
+                rs.getObject("instFlowRate", BigDecimal.class),
+                rs.getObject("effVolume", BigDecimal.class),
+                rs.getString("source"),
                 rs.getString("overrideUpdatedBy"),
                 rs.getObject("overrideUpdatedAt", OffsetDateTime.class)
         ));

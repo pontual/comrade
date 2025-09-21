@@ -17,5 +17,9 @@ security:
       secure: false
       same-site: "Lax"
 
+dashboard:
+  daily:
+    limit-to-24h: false
+
 server:
   port: 8081

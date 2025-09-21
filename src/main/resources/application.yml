@@ -54,6 +54,10 @@ sgman:
     solicitante: ${KEY_SOLICITANTES}
     patrimonio: ${KEY_PATRIMONIOS}
 
+dashboard:
+  daily:
+    limit-to-24h: false
+
 logging:
   level:
     feign: DEBUG
