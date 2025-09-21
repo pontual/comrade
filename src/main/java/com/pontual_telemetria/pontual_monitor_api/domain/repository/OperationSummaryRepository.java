@@ -18,7 +18,7 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
         make_date(:year,12,31)::date  AS end_date,
         (make_date(:year,12,31) + INTERVAL '1 day')::date AS end_date_plus1
     ),
-    -- external_ids do location com outorga que sobrepõe o ano
+    
     exts AS (
       SELECT DISTINCT ug.external_id
       FROM sch_regulatory.usage_grant ug, params p
@@ -26,20 +26,30 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
         AND ug.start_date::date < p.end_date_plus1
         AND (ug.end_date IS NULL OR ug.end_date::date > p.start_date)
     ),
-    -- leituras da MV no ano
+    
     base AS (
       SELECT
-        m.external_id              AS external_id,
-        m.day                      AS day,
-        m.daily_op_hours           AS captured_hours,
-        m.inst_flow_rate           AS day_flow_m3_h,
-        m.calculated_daily_measure AS captured_volume_m3
-      FROM sch_view.mv_daily_agg m
+        v.external_id                    AS external_id,
+        v.day                            AS day,
+    
+        CASE WHEN :capTo24
+             THEN LEAST(v.eff_daily_hours, 24)
+             ELSE v.eff_daily_hours
+        END                              AS captured_hours,
+    
+        v.inst_flow_rate                 AS day_flow_m3_h,
+    
+        CASE WHEN :capTo24
+             THEN (LEAST(v.eff_daily_hours, 24) * v.inst_flow_rate)
+             ELSE v.eff_volume
+        END                              AS captured_volume_m3
+    
+      FROM sch_monitoring.vw_daily_calculated_final v
       JOIN params p ON TRUE
-      JOIN exts e   ON e.external_id = m.external_id
-      WHERE m.day BETWEEN p.start_date AND p.end_date
+      JOIN exts   e ON e.external_id = v.external_id
+      WHERE v.day BETWEEN p.start_date AND p.end_date
     ),
-    -- outorga diária (pega a mais recente quando houver sobreposição)
+    
     grant_by_day AS (
       SELECT DISTINCT ON (ug.external_id, d::date)
         ug.external_id,
@@ -72,7 +82,7 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
         AND (ug.end_date IS NULL OR ug.end_date::date > d::date)
       ORDER BY ug.external_id, d::date, ug.start_date DESC
     ),
-    -- vazão máxima outorgada por external_id (outorga mais recente que sobrepõe o ano)
+    
     latest_grant AS (
       SELECT DISTINCT ON (ug.external_id)
         ug.external_id,
@@ -83,7 +93,7 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
         AND (ug.end_date IS NULL OR ug.end_date::date > p.start_date)
       ORDER BY ug.external_id, ug.start_date DESC
     ),
-    -- agregado anual
+    
     agg AS (
       SELECT
         b.external_id,
@@ -122,6 +132,7 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
     """, nativeQuery = true)
     List<OperationSummaryProjection> summaryByLocationId(
             @Param("locationId") Long locationId,
-            @Param("year") Integer year
+            @Param("year") Integer year,
+            @Param("capTo24") boolean capTo24
     );
 }

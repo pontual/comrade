@@ -5,6 +5,7 @@ import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantRe
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.projection.OperationSummaryProjection;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.OperationSummaryDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,6 +20,9 @@ public class OperationSummaryDomainService {
     private final UsageGrantRepository usageGrantRepository;
     private final MaterializedViewRefreshDomainService mvRefresh;
 
+    @Value("${dashboard.daily.limit-to-24h:false}")
+    private boolean capTo24;
+
     private static LocalDate endInclusive(LocalDateTime endDateTime) {
         if (endDateTime == null) return LocalDate.of(9999,12,31);
         return endDateTime.toLocalDate().minusDays(1);
@@ -32,7 +36,8 @@ public class OperationSummaryDomainService {
 
         final int yearSearch = (year != null ? year : resolveYearFromLatestGrant(locationId));
 
-        List<OperationSummaryProjection> data = repository.summaryByLocationId(locationId, yearSearch);
+        List<OperationSummaryProjection> data =
+                repository.summaryByLocationId(locationId, yearSearch, capTo24);
 
         return data.stream().map(p -> new OperationSummaryDTO(
                 p.getExternal_id(),
