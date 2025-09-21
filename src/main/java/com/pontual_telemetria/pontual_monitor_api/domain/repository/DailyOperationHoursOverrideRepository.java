@@ -9,5 +9,4 @@ import java.util.Optional;
 public interface DailyOperationHoursOverrideRepository extends JpaRepository<DailyOperationHoursOverride, Long> {
     Optional<DailyOperationHoursOverride> findByExternalIdAndDay(Long externalId, LocalDate day);
     void deleteByExternalIdAndDay(Long externalId, LocalDate day);
-    boolean existsByExternalIdAndDay(Long externalId, LocalDate day);
 }
