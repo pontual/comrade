@@ -24,6 +24,7 @@ public class Constants {
     public static final String TABLE_CONTROL_READING = "control_reading";
     public static final String TABLE_INSTANTANEOUS_FLOW_RATE = "instantaneous_flow_rate";
     public static final String TABLE_DEVICE = "device";
+    public static final String TABLE_DAILY_OPERATION_HOURS_OVERRIDE = "daily_operation_hours_override";
 
     //ERRORS
     public static final String SGMAN_ERROR_MESSAGE = "Erro ao realizar consulta SGMAN: ";
