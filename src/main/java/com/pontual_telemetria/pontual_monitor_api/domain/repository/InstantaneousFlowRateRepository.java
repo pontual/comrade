@@ -3,7 +3,9 @@ package com.pontual_telemetria.pontual_monitor_api.domain.repository;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.monitoring.InstantaneousFlowRate;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -16,16 +18,16 @@ public interface InstantaneousFlowRateRepository extends JpaRepository<Instantan
     @EntityGraph(attributePaths = "location")
     List<InstantaneousFlowRate> findAllByLocation_Id(Long locationId);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-        select i
-        from InstantaneousFlowRate i
-        where i.externalId = :externalId
-          and i.startDate <= :end
-          and (i.endDate is null or i.endDate >= :start)
-        order by i.startDate desc
+        update InstantaneousFlowRate r
+           set r.endDate = :newStart
+         where r.location.id = :locationId
+           and r.externalId = :externalId
+           and r.endDate is null
     """)
-    Optional<InstantaneousFlowRate> findEffectiveForPeriod(
-            Long externalId, LocalDateTime start, LocalDateTime end
-    );
-
+    void closeCurrent(@Param("locationId") Long locationId,
+                     @Param("externalId") Long externalId,
+                     @Param("newStart") LocalDateTime newStart);
 }
+

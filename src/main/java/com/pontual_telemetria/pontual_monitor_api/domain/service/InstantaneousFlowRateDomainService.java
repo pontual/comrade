@@ -23,19 +23,21 @@ public class InstantaneousFlowRateDomainService {
     private final LocationRepository locationRepository;
 
     @Transactional
-    public void create(InstantaneousFlowRateRequestDTO instantaneousFlowRateRequestDTO) {
-        Location location = locationRepository.findByExternalId(instantaneousFlowRateRequestDTO.getLocationId());
+    public void create(InstantaneousFlowRateRequestDTO request) {
+        Location location = locationRepository.findByExternalId(request.getLocationId());
 
         if(location == null){
             throw new PontualMonitorException("Localização não informada", "ID_LOCATION_NOT_SPECIFIED", HttpStatus.BAD_REQUEST, "É necessário informar o id da Localização");
         }
 
+        instantaneousFlowRateRepository.closeCurrent(location.getId(), request.getLocationId(), request.getStartDate());
+
         InstantaneousFlowRate entity = InstantaneousFlowRate.builder()
                 .location(location)
                 .externalId(location.getExternalId())
-                .measurement(instantaneousFlowRateRequestDTO.getMeasurement())
-                .startDate(instantaneousFlowRateRequestDTO.getStartDate())
-                .endDate(instantaneousFlowRateRequestDTO.getEndDate())
+                .measurement(request.getMeasurement())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
                 .build();
 
         instantaneousFlowRateRepository.save(entity);
