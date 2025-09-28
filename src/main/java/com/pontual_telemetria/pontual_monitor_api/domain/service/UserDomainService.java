@@ -43,10 +43,6 @@ public class UserDomainService {
             throw new PontualMonitorException("Usuário não encontrado", "USER_NOT_FOUND", HttpStatus.BAD_REQUEST, "O usuário informado não foi encontrado.");
         }
 
-        if (!passwordEncoder.matches(resetPasswordDTO.getPassword(), accountUser.getPassword())) {
-            throw new PontualMonitorException("Senha inválida", "PASSWORD_DOES_NOT_MATCH", HttpStatus.BAD_REQUEST, "A senha informada está incorreta.");
-        }
-
         if (passwordEncoder.matches(resetPasswordDTO.getNewPassword(), accountUser.getPassword())) {
             throw new PontualMonitorException("Nova senha igual à atual", "PASSWORD_SAME_AS_OLD", HttpStatus.BAD_REQUEST, "A nova senha deve ser diferente da atual.");
         }
