@@ -16,6 +16,7 @@ public class Constants {
     //TABLES
     public static final String TABLE_PERSON = "person";
     public static final String TABLE_ACCOUNT_USER = "account_user";
+    public static final String TABLE_ACCOUNT_USER_REQUESTER = "account_user_requester";
     public static final String TABLE_REQUESTER = "requester";
     public static final String TABLE_LOCATION = "location";
     public static final String TABLE_USAGE_GRANT = "usage_grant";

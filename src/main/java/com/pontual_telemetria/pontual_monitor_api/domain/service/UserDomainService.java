@@ -5,6 +5,8 @@ import com.pontual_telemetria.pontual_monitor_api.domain.exception.person.Person
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.user.UserAlreadyExistsException;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUser;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUserRequester;
+import com.pontual_telemetria.pontual_monitor_api.domain.repository.AccountUserRequesterRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.PersonRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UserRepository;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.user.AccountUserDTO;
@@ -17,16 +19,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserDomainService {
 
     private final PasswordEncoder passwordEncoder;
-    private final PersonRepository personRepository;
     private final UserRepository userRepository;
+    private final PersonRepository personRepository;
+    private final AccountUserRequesterRepository accountUserRequesterRepository;
 
+    @Transactional
     public AccountUser createAccountUser(UserRequestDTO userRequest, Person person){
-        return AccountUser.builder()
+
+        userRequest.setPassword(generatePassword());
+
+        AccountUser user = AccountUser.builder()
                 .username(userRequest.getUsername())
                 .password(passwordEncoder.encode(userRequest.getPassword()))
                 .role(userRequest.getRole())
@@ -34,6 +45,28 @@ public class UserDomainService {
                 .enabled(userRequest.isEnabled())
                 .build();
 
+        userRepository.save(user);
+
+        if(!userRequest.getRequesters().isEmpty()){
+            vinculateRequesters(user, userRequest.getRequesters());
+        }
+
+        return user;
+
+    }
+
+    @Transactional
+    public void vinculateRequesters(AccountUser user, List<Integer> requesters){
+        List<AccountUserRequester> accountUserRequesters = new ArrayList<>();
+
+        for (Integer requester: requesters) {
+            AccountUserRequester accountUserRequester = new AccountUserRequester();
+            accountUserRequester.setUser(user);
+            accountUserRequester.setRequesterId(requester);
+            accountUserRequesters.add(accountUserRequester);
+        }
+
+        accountUserRequesterRepository.saveAllAndFlush(accountUserRequesters);
     }
 
     @Transactional
@@ -102,8 +135,31 @@ public class UserDomainService {
         }
     }
 
-    public boolean isValidPassword(String newPassword, String confirmNewPassword) {
+    private boolean isValidPassword(String newPassword, String confirmNewPassword) {
         String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$";
         return newPassword.equals(confirmNewPassword) && newPassword.matches(regex);
+    }
+
+    private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String DIGITS = "0123456789";
+    private static final String SPECIAL = "@#$%&*!?";
+
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    public static String generatePassword() {
+        int length = 8;
+
+        StringBuilder password = new StringBuilder();
+
+        password.append(UPPER.charAt(RANDOM.nextInt(UPPER.length())));
+        password.append(SPECIAL.charAt(RANDOM.nextInt(SPECIAL.length())));
+
+        String all = UPPER + LOWER + DIGITS + SPECIAL;
+        while (password.length() < length) {
+            password.append(all.charAt(RANDOM.nextInt(all.length())));
+        }
+
+        return password.toString();
     }
 }

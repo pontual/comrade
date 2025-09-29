@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.List;
+
 @Data
 public class UserRequestDTO {
 
@@ -31,4 +33,6 @@ public class UserRequestDTO {
     private String role;
 
     private boolean enabled;
+
+    private List<Integer> requesters;
 }
