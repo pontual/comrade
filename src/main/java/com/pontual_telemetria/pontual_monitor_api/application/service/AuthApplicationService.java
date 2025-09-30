@@ -1,5 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.application.service;
 
+import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUserRequester;
 import com.pontual_telemetria.pontual_monitor_api.domain.service.AuthDomainService;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.JwtUtil;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.auth.AuthRequestDTO;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,6 +18,7 @@ import java.util.List;
 public class AuthApplicationService {
 
     private final AuthDomainService authDomainService;
+    private final UserApplicationService userApplicationService;
     private final JwtUtil jwtUtil;
 
     public AuthResponseDTO authenticateUser(AuthRequestDTO authRequestDTO) {
@@ -28,6 +31,15 @@ public class AuthApplicationService {
         String token = jwtUtil.generateAccessToken(user.getUsername(), List.of(user.getRole()));
         log.info("[AUTENTICATE-USER] Token de acesso gerado com sucesso");
 
+        List<AccountUserRequester> data = userApplicationService.getAccountRequestersById(user.getId());
+
+        List<Integer> vinculatedRequesters = new ArrayList<>();
+
+        data.forEach(r -> {
+            Integer requester = r.getRequesterId();
+            vinculatedRequesters.add(requester);
+        });
+
         return new AuthResponseDTO(
                 user.getId(),
                 true,
@@ -37,7 +49,8 @@ public class AuthApplicationService {
                 user.getPerson().getName(),
                 user.getPerson().getDocument(),
                 user.getPerson().getEmail(),
-                user.getPerson().getPhone()
+                user.getPerson().getPhone(),
+                vinculatedRequesters
         );
     }
 

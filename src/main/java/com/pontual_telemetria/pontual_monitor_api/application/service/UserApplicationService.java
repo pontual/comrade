@@ -4,6 +4,7 @@ import com.pontual_telemetria.pontual_monitor_api.application.mapper.PersonMappe
 import com.pontual_telemetria.pontual_monitor_api.application.mapper.UserResponseMapper;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUser;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.user.AccountUserRequester;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.PersonRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UserRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.service.UserDomainService;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -80,5 +83,12 @@ public class UserApplicationService {
         log.info("[DELETE-ACCOUNT-USER] Deletando usuário id={}", id);
         userDomainService.delete(id);
         log.info("[DELETE-ACCOUNT-USER] Dados de usuário deletados com sucesso id={}", id);
+    }
+
+    public List<AccountUserRequester> getAccountRequestersById(Long id){
+        log.info("[ACCOUNT-USER-REQUESTER] Recuperando informações de solicitantes para o usuário id {}", id);
+        List<AccountUserRequester> data  = userDomainService.getAccountRequestersById(id);
+        log.info("[ACCOUNT-USER-REQUESTER] Informações de solicitantes para o usuário id {} retornadas com sucesso", id);
+        return data;
     }
 }

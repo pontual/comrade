@@ -114,6 +114,10 @@ public class UserDomainService {
         userRepository.delete(user);
     }
 
+    public List<AccountUserRequester> getAccountRequestersById(Long id){
+        return accountUserRequesterRepository.findAllByUser_id(id);
+    }
+
     public void deleteByPersonId(Long personId){
         AccountUser accountUser = userRepository.findByPerson_Id(personId);
         if(accountUser != null) {

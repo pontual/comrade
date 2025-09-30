@@ -89,7 +89,8 @@ public class AuthController {
                 response.getPersonName(),
                 response.getDocument(),
                 response.getEmail(),
-                response.getPhone()
+                response.getPhone(),
+                response.getVinculatedRequesters()
         ));
     }
 
