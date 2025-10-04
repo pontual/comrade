@@ -12,6 +12,7 @@ public class Constants {
     public static final String SCHEMA_CUSTOMER = "sch_customer";
     public static final String SCHEMA_REGULATORY = "sch_regulatory";
     public static final String SCHEMA_MONITORING = "sch_monitoring";
+    public static final String SCHEMA_CONFIGURATION = "sch_configuration";
 
     //TABLES
     public static final String TABLE_PERSON = "person";
@@ -26,6 +27,7 @@ public class Constants {
     public static final String TABLE_INSTANTANEOUS_FLOW_RATE = "instantaneous_flow_rate";
     public static final String TABLE_DEVICE = "device";
     public static final String TABLE_DAILY_OPERATION_HOURS_OVERRIDE = "daily_operation_hours_override";
+    public static final String TABLE_FUNCTION = "function";
 
     //ERRORS
     public static final String SGMAN_ERROR_MESSAGE = "Erro ao realizar consulta SGMAN: ";
