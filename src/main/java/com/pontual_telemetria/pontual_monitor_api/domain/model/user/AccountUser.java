@@ -1,4 +1,4 @@
-package com.pontual_telemetria.pontual_monitor_api.domain.model.account_user;
+package com.pontual_telemetria.pontual_monitor_api.domain.model.user;
 
 import com.pontual_telemetria.pontual_monitor_api.domain.model.person.Person;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.Constants;
@@ -29,13 +29,16 @@ public class AccountUser {
     @Column(nullable = false, length = 30)
     private String role;
 
+    @Column(nullable = false)
+    private boolean enabled;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 }

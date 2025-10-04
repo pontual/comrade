@@ -6,4 +6,5 @@ import lombok.Data;
 public class AuthRequestDTO {
     private String username;
     private String password;
+    private boolean rememberMe;
 }

@@ -1,5 +1,6 @@
 package com.pontual_telemetria.pontual_monitor_api.infrastructure.security;
 
+import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.CookieUtil;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,27 +23,30 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private final CustomUserDetailService userDetailsService;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+        String accessToken = cookieUtil.getCookieValue(request, "accessToken");
 
-            if(jwtUtil.isTokenValid(token)) {
-                String username = jwtUtil.extractUsername(token);
-                List<String> roles = jwtUtil.extractRoles(token);
-                List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                        .toList();
-                var userDetails = userDetailsService.loadUserByUsername(username);
+        if(accessToken != null && jwtUtil.isTokenValid(accessToken)) {
+            String username = jwtUtil.extractUsername(accessToken);
+            List<String> roles = jwtUtil.extractRoles(accessToken);
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                    .toList();
+
+            var userDetails = userDetailsService.loadUserByUsername(username);
+
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
         filterChain.doFilter(request, response);

@@ -29,11 +29,12 @@ public class CustomCorsFilter implements Filter {
 
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
         response.setHeader("Access-Control-Max-Age", "3600");
 
         if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
+            return;
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }

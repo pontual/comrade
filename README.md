@@ -16,6 +16,7 @@ Sistema de monitoramento e visualização de dados para a **Pontual Telemetria e
 ---
 
 ## 🏗️ Estrutura do Projeto
+```bash
 
 pontual-monitor-api/
 ├── Dockerfile
@@ -28,6 +29,8 @@ pontual-monitor-api/
 ├── target/
 │ └── pontual-monitor-api-0.0.1-SNAPSHOT.jar
 └── src/
+
+```
 
 ---
 
@@ -42,11 +45,12 @@ pontual-monitor-api/
 
 ### 2️⃣ Configurar variáveis de ambiente
 
-Crie um arquivo `.env` (ou use o exemplo abaixo):
+Crie um arquivo `secret-local.properties` (ou use o exemplo abaixo):
 
+POSTGRES_DB=pontualdb
 POSTGRES_USER=UserPontual
 POSTGRES_PASSWORD=123456
-POSTGRES_DB=pontualdb
+JWT_SECRET=No5JpJ2hqsbTrACMBLeASLjBq+t4RqI427skYce3CZA=
 
 ---
 

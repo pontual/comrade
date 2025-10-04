@@ -9,6 +9,7 @@ public class UserResponseDTO {
     private Long id;
     private String username;
     private String role;
+    private boolean enabled;
     private String personName;
     private String document;
     private String email;
