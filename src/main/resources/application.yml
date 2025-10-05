@@ -40,7 +40,7 @@ security:
     remember-refresh-expiration-ms: 1296000000 #15 dias
     cookie:
       secure: true
-      same-site: "Lax"
+      same-site: "None"
 
 springdoc:
   paths-to-exclude: /actuator/**, /error

@@ -21,7 +21,7 @@ public class CustomCorsFilter implements Filter {
     );
 
     private static final List<String> ALLOWED_ORIGINS_PROD = List.of(
-            "https://seu-front-em-producao.com.br" // TODO TROCAR PARA O DOMÍNIO REAL
+            "https://app.pontualtelemetria.com.br"
     );
 
     private final List<String> allowedOrigins;
