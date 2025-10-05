@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS sch_regulatory.usage_grant_monthly (
     id BIGSERIAL PRIMARY KEY,
-    usage_grant_id INTEGER NOT NULL,
+    usage_grant_id BIGSERIAL NOT NULL,
     month INTEGER NOT NULL CHECK (month BETWEEN 1 AND 12),
     flow_rate NUMERIC(15,2),
     hours_day NUMERIC(4,2),

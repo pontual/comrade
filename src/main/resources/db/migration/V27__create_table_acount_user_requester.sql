@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS sch_user.account_user_requester (
     id BIGSERIAL PRIMARY KEY,
-    user_id      INTEGER NOT NULL,
+    user_id      BIGSERIAL NOT NULL,
     requester_id INTEGER NOT NULL,
     created_at   TIMESTAMP NOT NULL DEFAULT now(),
 
