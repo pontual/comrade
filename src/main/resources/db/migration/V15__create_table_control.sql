@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_monitoring.control (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     location_id BIGINT NOT NULL,
     external_id BIGINT NOT NULL,
     device_id VARCHAR(20) NOT NULL,

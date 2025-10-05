@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_monitoring.device (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     brand VARCHAR(100),
     identifier VARCHAR(20) NOT NULL,
     created_at TIMESTAMP NOT NULL,

@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_person.person (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
     document    VARCHAR(20) NOT NULL UNIQUE,
     email       VARCHAR(255),

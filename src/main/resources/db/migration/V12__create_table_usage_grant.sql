@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_regulatory.usage_grant (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     location_id INTEGER NOT NULL,
     external_id BIGINT NOT NULL,
     identifier VARCHAR(100) NOT NULL,

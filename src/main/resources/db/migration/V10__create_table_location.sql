@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_customer.location (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     external_id BIGINT,
     description VARCHAR(255),
     requester_id INTEGER,

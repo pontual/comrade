@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_monitoring.control_reading (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     control_id BIGINT NOT NULL,
     location_id BIGINT NOT NULL,
     external_id BIGINT NOT NULL,

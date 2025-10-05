@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_user.account_user (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     role     VARCHAR(30) NOT NULL,

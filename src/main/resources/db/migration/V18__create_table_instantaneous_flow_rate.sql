@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS sch_monitoring.instantaneous_flow_rate (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     location_id BIGINT NOT NULL,
     external_id BIGINT NOT NULL,
     measurement NUMERIC(10,2),
