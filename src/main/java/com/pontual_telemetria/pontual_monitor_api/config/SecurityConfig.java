@@ -33,7 +33,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        //.requestMatchers("/user/create").permitAll()
+                        .requestMatchers("/user/create").permitAll() //TODO REMOVER APÓS CRIAR USER PRINCIPAL
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
