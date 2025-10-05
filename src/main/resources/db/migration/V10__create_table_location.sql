@@ -27,8 +27,5 @@ CREATE TABLE IF NOT EXISTS sch_customer.location (
     situation_id INTEGER
 );
 
-ALTER TABLE  sch_customer.location
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_customer_external_id ON sch_customer.location (external_id);
 CREATE INDEX IF NOT EXISTS idx_customer_requester_id ON sch_customer.location (requester_id);

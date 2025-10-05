@@ -13,8 +13,5 @@ CREATE TABLE IF NOT EXISTS sch_regulatory.usage_grant_monthly (
       CONSTRAINT uq_usage_grant_monthly UNIQUE (usage_grant_id, month)
 );
 
-ALTER TABLE sch_regulatory.usage_grant_monthly
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_grant_monthly_grant_id ON sch_regulatory.usage_grant_monthly (usage_grant_id);
 CREATE INDEX IF NOT EXISTS idx_grant_monthly_month ON sch_regulatory.usage_grant_monthly (month);

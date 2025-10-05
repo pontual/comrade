@@ -21,9 +21,6 @@ CREATE TABLE IF NOT EXISTS sch_customer.requester (
     updated_at TIMESTAMP
 );
 
-ALTER TABLE  sch_customer.requester
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_customer_external_id ON sch_customer.requester (external_id);
 CREATE INDEX IF NOT EXISTS idx_customer_name ON sch_customer.requester (name);
 CREATE INDEX IF NOT EXISTS idx_customer_cpf ON sch_customer.requester (cpf);

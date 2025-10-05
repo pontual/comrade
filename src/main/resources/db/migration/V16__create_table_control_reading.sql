@@ -23,9 +23,6 @@ CREATE TABLE IF NOT EXISTS sch_monitoring.control_reading (
             ON DELETE CASCADE
 );
 
-ALTER TABLE sch_monitoring.control_reading
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_control_reading_control_id ON sch_monitoring.control_reading (control_id);
 CREATE INDEX IF NOT EXISTS idx_control_reading_external_id ON sch_monitoring.control_reading (external_id);
 CREATE INDEX IF NOT EXISTS idx_control_reading_dt_reading ON sch_monitoring.control_reading (dt_reading);

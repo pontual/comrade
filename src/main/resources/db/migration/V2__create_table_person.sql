@@ -8,8 +8,5 @@ CREATE TABLE IF NOT EXISTS sch_person.person (
     updated_at  TIMESTAMP NOT NULL
 );
 
-ALTER TABLE  sch_person.person
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_document_person
     ON sch_person.person (document);

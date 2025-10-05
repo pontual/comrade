@@ -7,9 +7,6 @@ CREATE TABLE IF NOT EXISTS sch_configuration.function (
     last_update TIMESTAMP
 );
 
-ALTER TABLE sch_configuration.function
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_function_name_enabled_true
     ON sch_configuration.function (name)
     WHERE enabled = true;

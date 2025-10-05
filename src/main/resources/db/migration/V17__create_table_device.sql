@@ -7,7 +7,4 @@ CREATE TABLE IF NOT EXISTS sch_monitoring.device (
     linked_patrimony VARCHAR(255)
 );
 
-ALTER TABLE  sch_monitoring.device
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_device_identifier ON sch_monitoring.device (identifier);

@@ -7,8 +7,5 @@ CREATE TABLE IF NOT EXISTS sch_monitoring.daily_operation_hours_override (
     updated_at            TIMESTAMPTZ    NOT NULL DEFAULT now()
 );
 
-ALTER TABLE sch_monitoring.daily_operation_hours_override
-    OWNER TO "UserPontual";
-
 CREATE UNIQUE INDEX IF NOT EXISTS ux_override_ext_day
     ON sch_monitoring.daily_operation_hours_override (external_id, day);

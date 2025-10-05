@@ -10,8 +10,5 @@ CREATE TABLE IF NOT EXISTS sch_user.account_user (
     FOREIGN KEY (person_id) REFERENCES sch_person.person(id)
 );
 
-ALTER TABLE  sch_user.account_user
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_username_account_user
     ON sch_user.account_user (username);

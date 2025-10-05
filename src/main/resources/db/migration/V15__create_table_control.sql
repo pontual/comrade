@@ -15,9 +15,6 @@ CREATE TABLE IF NOT EXISTS sch_monitoring.control (
           ON DELETE CASCADE
 );
 
-ALTER TABLE sch_monitoring.control
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_control_location_id
     ON sch_monitoring.control(location_id);
 

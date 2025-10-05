@@ -15,9 +15,6 @@ CREATE TABLE IF NOT EXISTS sch_regulatory.usage_grant (
         ON DELETE CASCADE
 );
 
-ALTER TABLE sch_regulatory.usage_grant
-    OWNER TO "UserPontual";
-
 CREATE INDEX IF NOT EXISTS idx_usage_grant_location_id ON sch_regulatory.usage_grant (location_id);
 CREATE INDEX IF NOT EXISTS idx_usage_grant_external_id ON sch_regulatory.usage_grant (external_id);
 CREATE INDEX IF NOT EXISTS idx_usage_grant_identifier ON sch_regulatory.usage_grant (identifier);
