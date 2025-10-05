@@ -35,11 +35,13 @@ public class UserDomainService {
     @Transactional
     public AccountUser createAccountUser(UserRequestDTO userRequest, Person person){
 
-        userRequest.setPassword(generatePassword());
+        String password = (userRequest.getPassword() == null || userRequest.getPassword().isBlank())
+                ? generatePassword()
+                : userRequest.getPassword();
 
         AccountUser user = AccountUser.builder()
                 .username(userRequest.getUsername())
-                .password(passwordEncoder.encode(userRequest.getPassword()))
+                .password(passwordEncoder.encode(password))
                 .role(userRequest.getRole())
                 .person(person)
                 .enabled(userRequest.isEnabled())
@@ -52,7 +54,6 @@ public class UserDomainService {
         }
 
         return user;
-
     }
 
     @Transactional
