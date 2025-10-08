@@ -31,4 +31,7 @@ public class Constants {
 
     //ERRORS
     public static final String SGMAN_ERROR_MESSAGE = "Erro ao realizar consulta SGMAN: ";
+
+    //FUNCTIONS
+    public static final String CAP_TO_24H = "operation-daily-limit-to-24h";
 }
