@@ -31,7 +31,9 @@ public class SecurityConfig {
                                 "/auth/logout",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/actuator/health",
+                                "/actuator/info"
                         ).permitAll()
                         .requestMatchers("/user/create").permitAll() //TODO REMOVER APÓS CRIAR USER PRINCIPAL
                         .anyRequest().authenticated()

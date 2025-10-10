@@ -23,6 +23,22 @@ spring:
     schemas: public
     locations: classpath:db/migration
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health
+  endpoint:
+    health:
+      show-details: never
+  info:
+    defaults:
+      enabled: true
+    env:
+      enabled: true
+    java:
+      enabled: true
+
   cloud:
     openfeign:
       client:
@@ -43,7 +59,8 @@ security:
       same-site: "None"
 
 springdoc:
-  paths-to-exclude: /actuator/**, /error
+  paths-to-exclude: /error
+  show-actuator: true
 
 server:
   port: ${PORT:8080}
@@ -63,3 +80,9 @@ logging:
   level:
     feign: DEBUG
     org.springframework.security: INFO
+
+info:
+  app:
+    name: Pontual Monitor API
+    version: ${build.version}
+    profile: ${spring.profiles.active:default}
