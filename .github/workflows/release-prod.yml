@@ -1,0 +1,87 @@
+name: Release on main (auto bump)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      level:
+        description: 'SemVer level (patch | minor | major)'
+        required: false
+        default: 'patch'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-and-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (com histórico e tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java (Maven cache)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Ler versão atual do POM
+        id: cur
+        run: |
+          CURR_VERSION=$(mvn -q -Dexec.skip=true -DskipTests \
+            help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "current=$CURR_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Calcular próxima versão (SemVer)
+        id: next
+        env:
+          CURR: ${{ steps.cur.outputs.current }}
+          LEVEL: ${{ github.event.inputs.level || 'patch' }}
+        run: |
+          # remove sufixo -SNAPSHOT, se houver
+          BASE="${CURR%-SNAPSHOT}"
+
+          # separa em major.minor.patch
+          IFS='.' read -r MAJ MIN PAT <<< "$BASE"
+
+          case "$LEVEL" in
+            major)
+              MAJ=$((MAJ+1)); MIN=0; PAT=0;;
+            minor)
+              MIN=$((MIN+1)); PAT=0;;
+            patch|*)
+              # padrão: patch
+              PAT=$((PAT+1));;
+          esac
+
+          NEXT="${MAJ}.${MIN}.${PAT}"
+          echo "next=$NEXT" >> $GITHUB_OUTPUT
+          echo "Nova versão calculada: $NEXT"
+
+      - name: Atualizar versão no POM (sem -SNAPSHOT)
+        run: |
+          mvn -q -Dexec.skip=true -DskipTests \
+            versions:set -DnewVersion=${{ steps.next.outputs.next }} -DgenerateBackupPoms=false
+
+      - name: Commit e tag
+        env:
+          NEXT: ${{ steps.next.outputs.next }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Comita mudança no pom.xml
+          git add -A
+          git commit -m "chore(release): bump version to ${NEXT} [skip ci]"
+
+          # Cria tag anotada e faz push
+          git tag -a "v${NEXT}" -m "Release ${NEXT}"
+          git push origin HEAD:main
+          git push origin "v${NEXT}"

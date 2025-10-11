@@ -1,0 +1,43 @@
+name: Ensure SNAPSHOT on non-main
+
+on:
+  push:
+    branches-ignore: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  ensure-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Ler versão atual
+        id: cur
+        run: |
+          CURR=$(mvn -q -Dexec.skip=true -DskipTests \
+            help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "current=$CURR" >> $GITHUB_OUTPUT
+
+      - name: Adicionar -SNAPSHOT se faltar
+        env:
+          CURR: ${{ steps.cur.outputs.current }}
+        run: |
+          if [[ "$CURR" != *-SNAPSHOT ]]; then
+            mvn -q -Dexec.skip=true -DskipTests \
+              versions:set -DnewVersion="${CURR}-SNAPSHOT" -DgenerateBackupPoms=false
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "chore: ensure -SNAPSHOT on non-main [skip ci]" || echo "no changes"
+            git push
+          else
+            echo "Já está em SNAPSHOT: $CURR"
+          fi

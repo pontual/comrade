@@ -9,6 +9,8 @@ spring:
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=require
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+    hikari:
+      connection-timeout: 2000
 
   jpa:
     hibernate:
@@ -22,6 +24,25 @@ spring:
     enabled: true
     schemas: public
     locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health
+  endpoint:
+    health:
+      show-components: always
+      show-details: never
+      probes:
+        enabled: true
+  info:
+    defaults:
+      enabled: true
+    env:
+      enabled: true
+    java:
+      enabled: true
 
   cloud:
     openfeign:
@@ -43,7 +64,8 @@ security:
       same-site: "None"
 
 springdoc:
-  paths-to-exclude: /actuator/**, /error
+  paths-to-exclude: /error
+  show-actuator: true
 
 server:
   port: ${PORT:8080}
@@ -63,3 +85,9 @@ logging:
   level:
     feign: DEBUG
     org.springframework.security: INFO
+
+info:
+  app:
+    name: Pontual Monitor API
+    version: ${build.version}
+    profile: ${spring.profiles.active:default}
