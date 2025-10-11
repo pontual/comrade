@@ -9,6 +9,8 @@ spring:
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=require
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+    hikari:
+      connection-timeout: 2000
 
   jpa:
     hibernate:
@@ -30,7 +32,10 @@ management:
         include: info,health
   endpoint:
     health:
+      show-components: always
       show-details: never
+      probes:
+        enabled: true
   info:
     defaults:
       enabled: true
