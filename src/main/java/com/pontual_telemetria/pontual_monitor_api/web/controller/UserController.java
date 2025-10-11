@@ -91,8 +91,7 @@ public class UserController {
             ))
     })
     @PostMapping("/create")
-        //TODO remover tags de comentarios
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserRequestDTO userRequest){
        UserResponseDTO response = userApplicationService.create(userRequest);
        return response != null ? ResponseEntity.ok(response) : ResponseEntity.noContent().build();
