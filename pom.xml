@@ -12,7 +12,7 @@
 
 	<groupId>com.pontual-telemetria</groupId>
 	<artifactId>pontual-monitor-api</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.2</version>
 	<name>pontual-monitor-api</name>
 	<description>Projeto backend do sistema Pontiual Telemetria Monitor</description>
 
