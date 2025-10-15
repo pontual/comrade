@@ -17,5 +17,16 @@ security:
       secure: false
       same-site: "Lax"
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
 server:
   port: 8081
+  error:
+    include-message: always
+    include-stacktrace: always
+    whitelabel:
+      enabled: true

@@ -21,8 +21,7 @@ public class CustomCorsFilter implements Filter {
     );
 
     private static final List<String> ALLOWED_ORIGINS_PROD = List.of(
-            "https://app.pontualtelemetria.com.br",
-            "https://pontual-monitor-view.onrender.com"
+            "https://app.pontualtelemetria.com.br"
     );
 
     private final List<String> allowedOrigins;
