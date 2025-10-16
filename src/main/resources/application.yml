@@ -66,10 +66,10 @@ security:
 springdoc:
   paths-to-exclude: /error
   show-actuator: true
-#  api-docs:
-#    enabled: false
-#  swagger-ui:
-#    enabled: false
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 server:
   port: ${PORT:8080}
