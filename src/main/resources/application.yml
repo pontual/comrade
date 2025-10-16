@@ -66,21 +66,17 @@ security:
 springdoc:
   paths-to-exclude: /error
   show-actuator: true
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
+#  api-docs:
+#    enabled: false
+#  swagger-ui:
+#    enabled: false
 
 server:
   port: ${PORT:8080}
   address: 0.0.0.0
   servlet:
     context-path: /pontual/api/v1
-  error:
-    include-message: never
-    include-stacktrace: never
-    whitelabel:
-      enabled: false
+
 
 sgman:
   client:
