@@ -6,6 +6,6 @@
 ╚═╝      ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
 Pontual Monitor - Sistema de Telemetria e Monitoramento
-Versão 1.0.0 | Java 21 | Spring Boot 3
+Versão 1.0.x | Java 21 | Spring Boot 3
 
 Desenvolvido por AntaresCode Soluções em Tecnologia
