@@ -25,10 +25,10 @@ public class Device {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 20)
+    @Column(length = 100)
     private String brand;
 
-    @Column(nullable = false)
+    @Column(length = 100, nullable = false)
     private String identifier;
 
     @Column(name = "created_at", nullable = false)
