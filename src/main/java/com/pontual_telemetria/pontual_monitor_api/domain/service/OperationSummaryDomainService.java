@@ -1,10 +1,9 @@
 package com.pontual_telemetria.pontual_monitor_api.domain.service;
 
-import com.pontual_telemetria.pontual_monitor_api.domain.model.configuration.Function;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.OperationSummaryRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.projection.OperationSummaryProjection;
-import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.Constants;
+import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.ApplicationUtils;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.OperationSummaryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,16 +11,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OperationSummaryDomainService {
 
+    private final ApplicationUtils applicationUtils;
     private final OperationSummaryRepository repository;
     private final UsageGrantRepository usageGrantRepository;
     private final MaterializedViewRefreshDomainService mvRefresh;
-    private final ConfigurationDomainService configurationDomainService;
 
     private static LocalDate endInclusive(LocalDateTime endDateTime) {
         if (endDateTime == null) return LocalDate.of(9999,12,31);
@@ -35,7 +33,7 @@ public class OperationSummaryDomainService {
         }
 
         final int yearSearch = (year != null ? year : resolveYearFromLatestGrant(locationId));
-        boolean cap24On = enableCapTo24();
+        boolean cap24On = applicationUtils.enableCapTo24();
 
         List<OperationSummaryProjection> data =
                 repository.summaryByLocationId(locationId, yearSearch, cap24On);
@@ -69,16 +67,4 @@ public class OperationSummaryDomainService {
                 })
                 .orElse(currentYear);
     }
-
-    private boolean enableCapTo24() {
-        List<Function> functions = Optional.ofNullable(configurationDomainService.functions())
-                .orElse(List.of());
-
-        return functions.stream()
-                .filter(f -> Constants.CAP_TO_24H.equalsIgnoreCase(f.getName()))
-                .map(f -> Boolean.TRUE.equals(f.getEnabled()))
-                .findFirst()
-                .orElse(false);
-    }
-
 }

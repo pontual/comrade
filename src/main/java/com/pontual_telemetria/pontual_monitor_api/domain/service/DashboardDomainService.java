@@ -1,13 +1,12 @@
 package com.pontual_telemetria.pontual_monitor_api.domain.service;
 
 import com.pontual_telemetria.pontual_monitor_api.application.service.DailyCalculatedDomainService;
-import com.pontual_telemetria.pontual_monitor_api.domain.model.configuration.Function;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrant;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrantMonthly;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.MVDailyAggRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.MVMonthlyAggRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantRepository;
-import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.Constants;
+import com.pontual_telemetria.pontual_monitor_api.infrastructure.util.ApplicationUtils;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.DailyVolumeDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.InfoPanelDTO;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.MonthlyVolumeDTO;
@@ -28,11 +27,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DashboardDomainService {
 
-    private final DailyCalculatedDomainService dailyCalculatedDomainService;
-    private final ConfigurationDomainService configurationDomainService;
-    private final MVMonthlyAggRepository mvMonthlyAggRepository;
+    private final ApplicationUtils applicationUtils;
     private final UsageGrantRepository usageGrantRepository;
     private final MVDailyAggRepository mvDailyAggRepository;
+    private final MVMonthlyAggRepository mvMonthlyAggRepository;
+    private final DailyCalculatedDomainService dailyCalculatedDomainService;
 
     private static final DateTimeFormatter MMYYYY = DateTimeFormatter.ofPattern("MM/yyyy");
     private static final BigDecimal H24 = new BigDecimal("24");
@@ -231,7 +230,7 @@ public class DashboardDomainService {
                                 (a, b) -> a)))
                 .orElseGet(Collections::emptyMap);
 
-        boolean cap24On = enableCapTo24();
+        boolean cap24On = applicationUtils.enableCapTo24();
 
         List<DailyVolumeDTO> out = new ArrayList<>(rows.size());
         for (DailyCalculatedItemDTO r : rows) {
@@ -265,16 +264,5 @@ public class DashboardDomainService {
                 .max(BigDecimal.ZERO)
                 .min(H24)
                 .setScale(1, RoundingMode.HALF_UP);
-    }
-
-    private boolean enableCapTo24() {
-        List<Function> functions = Optional.ofNullable(configurationDomainService.functions())
-                .orElse(List.of());
-
-        return functions.stream()
-                .filter(f -> Constants.CAP_TO_24H.equalsIgnoreCase(f.getName()))
-                .map(f -> Boolean.TRUE.equals(f.getEnabled()))
-                .findFirst()
-                .orElse(false);
     }
 }
