@@ -59,7 +59,7 @@ SELECT
             LEAST(
                     GREATEST(EXTRACT(EPOCH FROM (f.last_ts - f.first_ts)) / 3600.0, 0),
                     24
-            )::numeric, 1
+            )::numeric, 3
     ) AS daily_op_hours,
     f.inst_flow_rate,
     (

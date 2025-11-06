@@ -94,11 +94,11 @@ public class DashboardDomainService {
 
             out.add(new DailyVolumeDTO(
                     day.toString(),
-                    r.getDailyPulseDiff(),
-                    r.getDailyOpHours(),
-                    maxDailyOpHours,
-                    r.getInstFlowRate(),
-                    r.getCalculatedDailyMeasure()
+                    r.getDailyPulseDiff()         == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getDailyPulseDiff().setScale(3, RoundingMode.HALF_UP),
+                    r.getDailyOpHours()           == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getDailyOpHours().setScale(3, RoundingMode.HALF_UP),
+                    maxDailyOpHours               == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : maxDailyOpHours.setScale(3, RoundingMode.HALF_UP),
+                    r.getInstFlowRate()           == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getInstFlowRate().setScale(3, RoundingMode.HALF_UP),
+                    r.getCalculatedDailyMeasure() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getCalculatedDailyMeasure().setScale(3, RoundingMode.HALF_UP)
             ));
         }
         return out;
@@ -173,11 +173,13 @@ public class DashboardDomainService {
 
                     BigDecimal totalDuration = months.stream()
                             .map(m -> normalizeValue(m.getHoursDay()).multiply(normalizeValue(m.getDaysMonth())))
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                            .setScale(3, RoundingMode.HALF_UP);
 
                     BigDecimal totalVolume = months.stream()
                             .map(m -> normalizeValue(m.getMaximumVolume()))
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                            .setScale(3, RoundingMode.HALF_UP);
 
                     BigDecimal averageFlow = totalDuration.signum() == 0
                             ? BigDecimal.ZERO
@@ -194,13 +196,13 @@ public class DashboardDomainService {
 
                                 BigDecimal monthlyOperationHours = opHoursByMonth
                                         .getOrDefault(ymResolved, BigDecimal.ZERO)
-                                        .setScale(1, RoundingMode.HALF_UP);
+                                        .setScale(3, RoundingMode.HALF_UP);
 
-                                BigDecimal monthlyUsageGrantVolume = normalizeValue(m.getMaximumVolume());
-                                BigDecimal hoursDay  = normalizeValue(m.getHoursDay());
-                                BigDecimal daysMonth = normalizeValue(m.getDaysMonth());
-                                BigDecimal monthDuration = hoursDay.multiply(daysMonth);
-                                BigDecimal maxMonthlyOperationHours = monthDuration.setScale(1, RoundingMode.HALF_UP);
+                                BigDecimal monthlyUsageGrantVolume = normalizeValue(m.getMaximumVolume()).setScale(3, RoundingMode.HALF_UP);
+                                BigDecimal hoursDay  = normalizeValue(m.getHoursDay()).setScale(3, RoundingMode.HALF_UP);
+                                BigDecimal daysMonth = normalizeValue(m.getDaysMonth()).setScale(3, RoundingMode.HALF_UP);
+                                BigDecimal monthDuration = hoursDay.multiply(daysMonth).setScale(3, RoundingMode.HALF_UP);
+                                BigDecimal maxMonthlyOperationHours = monthDuration.setScale(3, RoundingMode.HALF_UP);
 
                                 return new UsageGrantDashboardInfoDTO(
                                         calendarMonth,
@@ -240,15 +242,20 @@ public class DashboardDomainService {
             BigDecimal maxDailyOpHours =
                     hoursDayByMonth.getOrDefault(ym.getMonthValue(), BigDecimal.ZERO);
 
-            BigDecimal effDailyHours = cap24On ? capTo24(r.effDailyHours()) : r.effDailyHours();
+            BigDecimal effDailyHoursRaw = r.effDailyHours();
+            BigDecimal effDailyHours = cap24On
+                    ? capTo24(effDailyHoursRaw)
+                    : (effDailyHoursRaw == null
+                    ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                    : effDailyHoursRaw.setScale(3, RoundingMode.HALF_UP));
 
             out.add(new DailyVolumeDTO(
                     day.toString(),
-                    r.mvDailyHours(),
+                    r.mvDailyHours() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.mvDailyHours().setScale(3, RoundingMode.HALF_UP),
                     effDailyHours,
-                    maxDailyOpHours,
-                    r.instFlowRate(),
-                    r.effVolume()
+                    maxDailyOpHours == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : maxDailyOpHours.setScale(3, RoundingMode.HALF_UP),
+                    r.instFlowRate() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.instFlowRate().setScale(3, RoundingMode.HALF_UP),
+                    r.effVolume()    == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.effVolume().setScale(3, RoundingMode.HALF_UP)
             ));
         }
         return out;
@@ -259,10 +266,10 @@ public class DashboardDomainService {
     }
 
     private static BigDecimal capTo24(BigDecimal hours) {
-        if (hours == null) return BigDecimal.ZERO.setScale(1, RoundingMode.HALF_UP);
+        if (hours == null) return BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP);
         return hours
                 .max(BigDecimal.ZERO)
                 .min(H24)
-                .setScale(1, RoundingMode.HALF_UP);
+                .setScale(3, RoundingMode.HALF_UP);
     }
 }

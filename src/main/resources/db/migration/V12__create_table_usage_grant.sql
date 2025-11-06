@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS sch_regulatory.usage_grant (
     identifier VARCHAR(100) NOT NULL,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL,
-    total_duration NUMERIC(15,2),
+    total_duration NUMERIC(15,3),
     total_volume NUMERIC(15,2),
     maximum_flow_rate NUMERIC(15,2),
 

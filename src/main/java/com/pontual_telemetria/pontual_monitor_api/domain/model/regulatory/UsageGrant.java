@@ -50,7 +50,7 @@ public class UsageGrant {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
-    @Column(name = "total_duration", precision = 15, scale = 2)
+    @Column(name = "total_duration", precision = 15, scale = 3)
     private BigDecimal totalDuration;
 
     @Column(name = "total_volume",  precision = 15, scale = 2)
