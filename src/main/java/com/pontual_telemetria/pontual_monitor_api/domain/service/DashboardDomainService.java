@@ -272,4 +272,5 @@ public class DashboardDomainService {
                 .min(H24)
                 .setScale(3, RoundingMode.HALF_UP);
     }
+    
 }
