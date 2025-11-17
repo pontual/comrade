@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS sch_regulatory.usage_grant_monthly (
     usage_grant_id BIGSERIAL NOT NULL,
     month INTEGER NOT NULL CHECK (month BETWEEN 1 AND 12),
     flow_rate NUMERIC(15,2),
-    hours_day NUMERIC(4,3),
+    hours_day NUMERIC(5,2),
     days_month NUMERIC(4,2),
     maximum_volume NUMERIC(15, 2),
       CONSTRAINT fk_usage_grant_monthly

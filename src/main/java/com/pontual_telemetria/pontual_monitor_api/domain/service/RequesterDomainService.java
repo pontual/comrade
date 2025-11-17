@@ -8,7 +8,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +21,38 @@ public class RequesterDomainService {
 
     @Transactional
     public void updateRequestsBySgman(List<SgmanRequesterDTO> sgmanRequesters) {
-        for (SgmanRequesterDTO sgmanRequesterDTO : sgmanRequesters) {
-            boolean exists = requesterRepository.existsByExternalId(sgmanRequesterDTO.getId());
+        for (SgmanRequesterDTO dto : sgmanRequesters) {
 
-            if(!exists) {
-                Requester requester = sgmanToRequesterMapper.toEntity(sgmanRequesterDTO);
-                requesterRepository.save(requester);
+            Optional<Requester> opt = requesterRepository.findByExternalId(dto.getId());
+
+            if (opt.isPresent()) {
+                Requester existing = opt.get();
+
+                existing.setName(dto.getNome());
+                existing.setCompanyName(dto.getRazaoSocial());
+                existing.setCnpj(dto.getCnpj());
+                existing.setCpf(dto.getCpf());
+                existing.setRg(dto.getRg());
+                existing.setCellphone(dto.getCelular());
+                existing.setPhone(dto.getTelefone());
+                existing.setContactName(dto.getNomeContato());
+                existing.setEmail(dto.getEmail());
+                existing.setAddress(dto.getEndereco());
+                existing.setNumber(dto.getNumero());
+                existing.setNeighborhood(dto.getBairro());
+                existing.setZipCode(dto.getCep());
+                existing.setComplement(dto.getComplemento());
+                existing.setState(dto.getUf());
+                existing.setCity(dto.getCidade());
+                existing.setUpdatedAt(LocalDateTime.now());
+
+                requesterRepository.save(existing);
+
+            } else {
+                Requester newRequester = sgmanToRequesterMapper.toEntity(dto);
+                newRequester.setCreatedAt(LocalDateTime.now());
+                newRequester.setUpdatedAt(LocalDateTime.now());
+                requesterRepository.save(newRequester);
             }
         }
     }
