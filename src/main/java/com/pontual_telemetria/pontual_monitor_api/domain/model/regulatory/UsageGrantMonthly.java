@@ -42,7 +42,7 @@ public class UsageGrantMonthly {
     @Column(name = "flow_rate", precision = 15, scale = 2)
     private BigDecimal flowRate;
 
-    @Column(name = "hours_day", precision = 4, scale = 3)
+    @Column(name = "hours_day", precision = 5, scale = 2)
     private BigDecimal hoursDay;
 
     @Column(name = "days_month", precision = 4, scale = 2)

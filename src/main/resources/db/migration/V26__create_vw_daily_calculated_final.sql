@@ -20,7 +20,7 @@ hours_horimeter AS (
   SELECT
     p.external_id,
     p.day,
-    ROUND(GREATEST(p.last_value - p.first_value, 0)::numeric, 1) AS mv_daily_hours
+    ROUND(GREATEST(p.last_value - p.first_value, 0)::numeric, 2) AS mv_daily_hours
   FROM per_day p
 )
 SELECT
