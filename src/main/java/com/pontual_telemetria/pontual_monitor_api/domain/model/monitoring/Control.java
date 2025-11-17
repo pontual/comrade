@@ -40,7 +40,7 @@ public class Control {
     @Column(name = "external_id", nullable = false)
     private Long externalId;
 
-    @Column(name = "device_id", length = 20, nullable = false)
+    @Column(name = "device_id", length = 100, nullable = false)
     private String deviceId;
 
     @Column(name = "dt_device_activate", nullable = false)
