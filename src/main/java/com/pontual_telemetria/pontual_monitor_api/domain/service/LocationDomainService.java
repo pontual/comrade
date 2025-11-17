@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,15 +19,45 @@ public class LocationDomainService {
     private final SgmanToLocationMapper sgmanToLocationMapper;
 
     @Transactional
-    public void updateLocationBySgman(List<SgmanLocationDTO> sgmanLocationDTO) {
-        for(SgmanLocationDTO locationDTO : sgmanLocationDTO) {
-            boolean exists = locationRepository.existsByExternalId(locationDTO.getId());
+    public void updateLocationBySgman(List<SgmanLocationDTO> sgmanLocationDTOs) {
+        for (SgmanLocationDTO dto : sgmanLocationDTOs) {
 
-            if(!exists) {
-                Location location = sgmanToLocationMapper.toEntity(locationDTO);
+            Location existing = locationRepository.findByExternalId(dto.getId());
+
+            if (existing != null) {
+                existing.setDescription(dto.getDescricao());
+                existing.setRequesterId(dto.getIdSolicitante());
+                existing.setLocationId(dto.getIdLocalizacao());
+                existing.setLocationName(dto.getLocalizacao());
+                existing.setCategoryId(dto.getIdCategoria());
+                existing.setCategory(dto.getCategoria());
+                existing.setTypeTechId(dto.getIdTipoTec());
+                existing.setTypeTech(dto.getTipoTec());
+                existing.setObservation(dto.getObservacao());
+                existing.setBrandId(dto.getIdMarca());
+                existing.setBrand(dto.getMarca());
+                existing.setModelId(dto.getIdModelo());
+                existing.setModel(dto.getModelo());
+                existing.setSerial(dto.getSerial());
+                existing.setPatrimony(dto.getPatrimonio());
+                existing.setTag(dto.getTag());
+                existing.setDataMatrix(dto.getDataMatrix());
+                existing.setDetails(dto.getDetalhes());
+                existing.setStatus(dto.getStatus());
+                existing.setSituation(dto.getSituacao());
+                existing.setSituationId(dto.getIdSituacao());
+                existing.setUpdatedAt(LocalDateTime.now());
+
+                locationRepository.save(existing);
+
+            } else {
+                Location location = sgmanToLocationMapper.toEntity(dto);
+                location.setExternalId(dto.getId());
+                location.setIncludedAt(LocalDateTime.now());
+                location.setUpdatedAt(LocalDateTime.now());
+
                 locationRepository.save(location);
             }
         }
-
     }
 }
