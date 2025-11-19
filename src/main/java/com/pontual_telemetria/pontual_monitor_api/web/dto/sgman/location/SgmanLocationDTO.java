@@ -66,4 +66,5 @@ public class SgmanLocationDTO {
     private String situacao;
     private Integer idSituacao;
     private List<PrevisaoHorasDTO> previsaoHoras;
+    
 }
