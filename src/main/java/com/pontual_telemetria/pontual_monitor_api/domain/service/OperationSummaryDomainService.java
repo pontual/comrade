@@ -8,6 +8,8 @@ import com.pontual_telemetria.pontual_monitor_api.web.dto.dashboard.OperationSum
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,35 +23,89 @@ public class OperationSummaryDomainService {
     private final UsageGrantRepository usageGrantRepository;
     private final MaterializedViewRefreshDomainService mvRefresh;
 
-    private static LocalDate endInclusive(LocalDateTime endDateTime) {
-        if (endDateTime == null) return LocalDate.of(9999,12,31);
-        return endDateTime.toLocalDate().minusDays(1);
-    }
-
-    public List<OperationSummaryDTO> getOperationSummaryByLocationId(Long locationId, Integer year, boolean awaitFresh) {
+    public List<OperationSummaryDTO> getOperationSummaryByLocationId(
+            Long locationId,
+            Integer year,
+            boolean awaitFresh
+    ) {
 
         if (awaitFresh) {
             mvRefresh.awaitIfRefreshing(locationId, 3000);
         }
 
         final int yearSearch = (year != null ? year : resolveYearFromLatestGrant(locationId));
-        boolean cap24On = applicationUtils.enableCapTo24();
+        final boolean cap24On = applicationUtils.enableCapTo24();
 
-        List<OperationSummaryProjection> data =
+        List<OperationSummaryProjection> summaries =
                 repository.summaryByLocationId(locationId, yearSearch, cap24On);
 
-        return data.stream().map(p -> new OperationSummaryDTO(
+        UsageGrantAnnualTotals annualGrant =
+                resolveAnnualUsageGrant(locationId);
+
+        return summaries.stream()
+                .map(p -> toDTO(p, annualGrant))
+                .toList();
+    }
+
+    private OperationSummaryDTO toDTO(
+            OperationSummaryProjection p,
+            UsageGrantAnnualTotals annualGrant
+    ) {
+
+        BigDecimal consumedVolume = p.getVolume_total_operation();
+        BigDecimal grantedVolume  = annualGrant.totalVolume();
+        BigDecimal grantedDuration = annualGrant.totalDuration();
+
+        BigDecimal utilization =
+                calculateUtilization(consumedVolume, grantedVolume);
+
+        return new OperationSummaryDTO(
                 p.getExternal_id(),
                 p.getDuration_operation_hours(),
-                p.getDuration_usage_grant_hours(),
-                p.getVolume_total_operation(),
-                p.getVolume_usage_grant(),
+                grantedDuration,
+                consumedVolume,
+                grantedVolume,
                 p.getAverage_flow(),
                 p.getLast_read(),
                 p.getMaximum_flow_rate(),
-                p.getUtilization()
-        )).toList();
+                utilization
+        );
     }
+
+    private UsageGrantAnnualTotals resolveAnnualUsageGrant(Long locationId) {
+
+        return usageGrantRepository
+                .findTopByLocationIdOrderByStartDateDesc(locationId)
+                .map(ug -> new UsageGrantAnnualTotals(
+                        defaultIfNull(ug.getTotalVolume()),
+                        defaultIfNull(ug.getTotalDuration())
+                ))
+                .orElse(new UsageGrantAnnualTotals(
+                        BigDecimal.ZERO,
+                        BigDecimal.ZERO
+                ));
+    }
+
+    private BigDecimal calculateUtilization(
+            BigDecimal consumed,
+            BigDecimal granted
+    ) {
+        if (consumed == null || granted == null) {
+            return BigDecimal.ZERO;
+        }
+        if (BigDecimal.ZERO.compareTo(granted) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return consumed
+                .divide(granted, 6, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+    }
+
+    private BigDecimal defaultIfNull(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
+    }
+
 
     private int resolveYearFromLatestGrant(Long locationId) {
         final int currentYear = LocalDate.now().getYear();
@@ -67,4 +123,16 @@ public class OperationSummaryDomainService {
                 })
                 .orElse(currentYear);
     }
+
+    private static LocalDate endInclusive(LocalDateTime endDateTime) {
+        if (endDateTime == null) {
+            return LocalDate.of(9999, 12, 31);
+        }
+        return endDateTime.toLocalDate().minusDays(1);
+    }
+
+    private record UsageGrantAnnualTotals(
+            BigDecimal totalVolume,
+            BigDecimal totalDuration
+    ) {}
 }
