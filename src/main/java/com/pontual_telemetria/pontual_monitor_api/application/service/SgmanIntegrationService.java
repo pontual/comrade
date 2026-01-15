@@ -79,6 +79,10 @@ public class SgmanIntegrationService {
             log.error(Constants.SGMAN_ERROR_MESSAGE + "{}", errorMessage, e);
             throw new SgmanException(errorMessage);
         }
+        if(sgmanResponse.getResultList() == null){
+            return List.of();
+        }
+
         List<SgmanLocationDTO> locations = sgmanLocationMapper.toResponseList(sgmanResponse.getResultList());
         locationApplicationService.updateLocationBySgman(locations);
         log.info("Finalizada a consulta de patrimônios por id de solicitante no SGMAN: idSolicitante={}", requesterId);
