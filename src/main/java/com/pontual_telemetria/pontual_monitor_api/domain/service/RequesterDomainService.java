@@ -23,6 +23,13 @@ public class RequesterDomainService {
     public void updateRequestsBySgman(List<SgmanRequesterDTO> sgmanRequesters) {
         for (SgmanRequesterDTO dto : sgmanRequesters) {
 
+            String celphone = normalizeDigits(dto.getCelular());
+            String phone = normalizeDigits(dto.getTelefone());
+            String cpf = normalizeDigits(dto.getCpf());
+            String cnpj = normalizeDigits(dto.getCnpj());
+            String rg = normalizeDigits(dto.getRg());
+            String zipCode = normalizeDigits(dto.getCep());
+
             Optional<Requester> opt = requesterRepository.findByExternalId(dto.getId());
 
             if (opt.isPresent()) {
@@ -30,17 +37,17 @@ public class RequesterDomainService {
 
                 existing.setName(dto.getNome());
                 existing.setCompanyName(dto.getRazaoSocial());
-                existing.setCnpj(dto.getCnpj());
-                existing.setCpf(dto.getCpf());
-                existing.setRg(dto.getRg());
-                existing.setCellphone(dto.getCelular());
-                existing.setPhone(dto.getTelefone());
+                existing.setCnpj(cnpj);
+                existing.setCpf(cpf);
+                existing.setRg(rg);
+                existing.setCellphone(celphone);
+                existing.setPhone(phone);
                 existing.setContactName(dto.getNomeContato());
                 existing.setEmail(dto.getEmail());
                 existing.setAddress(dto.getEndereco());
                 existing.setNumber(dto.getNumero());
                 existing.setNeighborhood(dto.getBairro());
-                existing.setZipCode(dto.getCep());
+                existing.setZipCode(zipCode);
                 existing.setComplement(dto.getComplemento());
                 existing.setState(dto.getUf());
                 existing.setCity(dto.getCidade());
@@ -55,5 +62,9 @@ public class RequesterDomainService {
                 requesterRepository.save(newRequester);
             }
         }
+    }
+
+    private String normalizeDigits(String value) {
+        return value == null ? null : value.replaceAll("\\D", "");
     }
 }
