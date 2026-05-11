@@ -56,7 +56,7 @@ management:
 security:
   jwt:
     secret: ${JWT_SECRET}
-    access-expiration-ms: 900000 #15 minutes
+    access-expiration-ms: 900000 #15 minutestelemetria
     refresh-expiration-ms: 604800000 #7 dias
     remember-refresh-expiration-ms: 1296000000 #15 dias
     cookie:
@@ -77,7 +77,6 @@ server:
   servlet:
     context-path: /pontual/api/v1
 
-
 sgman:
   client:
     unit: ${UNIT}
@@ -85,6 +84,16 @@ sgman:
   token:
     solicitante: ${KEY_SOLICITANTES}
     patrimonio: ${KEY_PATRIMONIOS}
+
+telemetria:
+  client:
+    url: https://telemetria.snirh.gov.br/api/v1.0
+  credentials:
+    user: pontualtelemetria@gmail.com
+    password: 12345678
+  config:
+    multiplier: 3600
+    token-ttl-minutes: 18
 
 logging:
   level:
