@@ -20,4 +20,5 @@ public class ControlReadingRequestDTO {
     private String status;
     private String tag;
     private String average;
+    private BigDecimal calculatedVolume;
 }

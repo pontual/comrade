@@ -22,5 +22,5 @@ public class ControlReadingImportDTO {
     private String status;
     private String tag;
     private String average;
-    private BigDecimal volume;
+    private BigDecimal calculatedVolume;
 }

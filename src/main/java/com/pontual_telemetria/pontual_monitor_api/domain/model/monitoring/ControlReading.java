@@ -68,6 +68,9 @@ public class ControlReading {
         @Column(name = "average", length = 10)
         private String average;
 
+        @Column(name = "calculated_volume", precision = 14, scale = 3)
+        private BigDecimal calculatedVolume;
+
         @Column(name = "created_at", nullable = false)
         private LocalDateTime createdAt;
 

@@ -19,7 +19,7 @@ public interface TelemetryMapper {
     @Mapping(target = "tag", source = "intervention")
     @Mapping(target = "status", expression = "java(String.valueOf(dto.getTransmissionCode()))")
     @Mapping(target = "average", expression = "java(dto.getAdjustedFlowRate().toPlainString())")
-    @Mapping(target = "volume", source = "adjustedVolume")
+    @Mapping(target = "calculatedVolume", source = "adjustedVolume")
     ControlReadingImportDTO toImportDTO(TelemetryResponseDTO dto);
 
     List<ControlReadingImportDTO> toImportDTOList(List<TelemetryResponseDTO> dtos);
