@@ -18,8 +18,8 @@ public class TelemetryDomainService {
     // Registros a partir de 12/05/2026 já foram corrigidos na origem; não aplicar correção.
     private static final LocalDate CORRECTION_CUTOFF_DATE = LocalDate.of(2026, 5, 11);
 
-    public List<TelemetryResponseDTO> applyFlowRateRules(List<TelemetryResponseDTO> readings) {
-        BigDecimal accumulatedHours = BigDecimal.ZERO;
+    public List<TelemetryResponseDTO> applyFlowRateRules(List<TelemetryResponseDTO> readings, BigDecimal initialAccumulatedHours) {
+        BigDecimal accumulatedHours = initialAccumulatedHours != null ? initialAccumulatedHours : BigDecimal.ZERO;
         BigDecimal previousVolume = null;
         BigDecimal lastPositiveAdjustedFlowRate = null;
 

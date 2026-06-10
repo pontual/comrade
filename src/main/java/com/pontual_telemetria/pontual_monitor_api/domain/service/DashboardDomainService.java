@@ -61,7 +61,9 @@ public class DashboardDomainService {
         return rows.stream()
                 .map(r -> new MonthlyVolumeDTO(
                         MMYYYY.format(YearMonth.from(r.getYm())),
-                        r.getMonthlyVolume()
+                        r.getMonthlyVolume(),
+                        null,
+                        null
                 ))
                 .toList();
     }
@@ -98,7 +100,8 @@ public class DashboardDomainService {
                     r.getDailyOpHours()           == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getDailyOpHours().setScale(3, RoundingMode.HALF_UP),
                     maxDailyOpHours               == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : maxDailyOpHours.setScale(3, RoundingMode.HALF_UP),
                     r.getInstFlowRate()           == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getInstFlowRate().setScale(3, RoundingMode.HALF_UP),
-                    r.getCalculatedDailyMeasure() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getCalculatedDailyMeasure().setScale(3, RoundingMode.HALF_UP)
+                    r.getCalculatedDailyMeasure() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getCalculatedDailyMeasure().setScale(3, RoundingMode.HALF_UP),
+                    null
             ));
         }
         return out;
@@ -123,25 +126,64 @@ public class DashboardDomainService {
         List<DailyVolumeDTO> daily = buildDailyVolume(externalId);
         if (daily.isEmpty()) return List.of();
 
-        Map<YearMonth, BigDecimal> sumByMonth = daily.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(
-                        d -> YearMonth.from(LocalDate.parse(d.getDay())),
-                        TreeMap::new,
-                        Collectors.reducing(
-                                BigDecimal.ZERO,
-                                d -> normalizeValue(d.getCalculatedDailyMeasure()),
-                                BigDecimal::add
-                        )
-                ));
+        BigDecimal grantedAvgFlow = calcGrantedAvgFlow(externalId)
+                .setScale(3, RoundingMode.HALF_UP);
 
-        return sumByMonth.entrySet().stream()
-                .map(e -> new MonthlyVolumeDTO(
-                        e.getKey().format(MMYYYY),
-                        e.getValue()
-                ))
+        Map<YearMonth, BigDecimal> volumeByMonth = new TreeMap<>();
+        Map<YearMonth, BigDecimal> flowSumByMonth = new TreeMap<>();
+        Map<YearMonth, Integer> flowCountByMonth = new TreeMap<>();
+
+        for (DailyVolumeDTO d : daily) {
+            if (d == null) continue;
+            YearMonth ym = YearMonth.from(LocalDate.parse(d.getDay()));
+
+            volumeByMonth.merge(ym, normalizeValue(d.getCalculatedDailyMeasure()), BigDecimal::add);
+            flowSumByMonth.merge(ym, normalizeValue(d.getAverageDailyFlowRate()), BigDecimal::add);
+            flowCountByMonth.merge(ym, 1, Integer::sum);
+        }
+
+        return volumeByMonth.entrySet().stream()
+                .map(e -> {
+                    YearMonth ym = e.getKey();
+                    int days = flowCountByMonth.getOrDefault(ym, 0);
+
+                    BigDecimal capturedAvg = days == 0
+                            ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                            : flowSumByMonth.getOrDefault(ym, BigDecimal.ZERO)
+                            .divide(BigDecimal.valueOf(days), 3, RoundingMode.HALF_UP);
+
+                    return new MonthlyVolumeDTO(
+                            ym.format(MMYYYY),
+                            e.getValue(),
+                            capturedAvg,
+                            grantedAvgFlow
+                    );
+                })
                 .toList();
     }
+
+    private BigDecimal calcGrantedAvgFlow(Long externalId) {
+        return findLatestUsageGrant(externalId)
+                .map(ug -> {
+                    List<UsageGrantMonthly> months = ug.getMonthlyGrants().stream()
+                            .filter(Objects::nonNull)
+                            .toList();
+
+                    BigDecimal totalDuration = months.stream()
+                            .map(m -> normalizeValue(m.getHoursDay()).multiply(normalizeValue(m.getDaysMonth())))
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    BigDecimal totalVolume = months.stream()
+                            .map(m -> normalizeValue(m.getMaximumVolume()))
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return totalDuration.signum() == 0
+                            ? BigDecimal.ZERO
+                            : totalVolume.divide(totalDuration, 6, RoundingMode.HALF_EVEN);
+                })
+                .orElse(BigDecimal.ZERO);
+    }
+
 
     private List<UsageGrantDashboardInfoDTO> buildUsageGrantVolumeInfo(
             Long externalId,
@@ -249,16 +291,34 @@ public class DashboardDomainService {
                     ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
                     : effDailyHoursRaw.setScale(3, RoundingMode.HALF_UP));
 
+            BigDecimal effVolume = r.effVolume() == null
+                    ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                    : r.effVolume().setScale(3, RoundingMode.HALF_UP);
+
+            BigDecimal averageDailyFlowRate = getAverageDailyFlowRate(r, effDailyHours, effVolume);
+
             out.add(new DailyVolumeDTO(
                     day.toString(),
                     r.mvDailyHours() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.mvDailyHours().setScale(3, RoundingMode.HALF_UP),
                     effDailyHours,
                     maxDailyOpHours == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : maxDailyOpHours.setScale(3, RoundingMode.HALF_UP),
                     r.instFlowRate() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.instFlowRate().setScale(3, RoundingMode.HALF_UP),
-                    r.effVolume()    == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.effVolume().setScale(3, RoundingMode.HALF_UP)
+                    effVolume,
+                    averageDailyFlowRate
             ));
         }
         return out;
+    }
+
+    private static BigDecimal getAverageDailyFlowRate(DailyCalculatedItemDTO r, BigDecimal effDailyHours, BigDecimal effVolume) {
+        if ("API".equals(r.source())) {
+            return effDailyHours.signum() == 0
+                    ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                    : effVolume.divide(effDailyHours, 3, RoundingMode.HALF_UP);
+        }
+        return r.instFlowRate() == null
+                ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                : r.instFlowRate().setScale(3, RoundingMode.HALF_UP);
     }
 
     private static BigDecimal normalizeValue(BigDecimal v) {
