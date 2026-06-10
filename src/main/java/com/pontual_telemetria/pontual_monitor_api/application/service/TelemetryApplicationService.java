@@ -1,6 +1,7 @@
 package com.pontual_telemetria.pontual_monitor_api.application.service;
 
 import com.pontual_telemetria.pontual_monitor_api.application.mapper.TelemetryMapper;
+import com.pontual_telemetria.pontual_monitor_api.domain.repository.ControlReadingDataRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.service.TelemetryDomainService;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.client.feign.telemetria.TelemetriaClient;
 import com.pontual_telemetria.pontual_monitor_api.infrastructure.client.feign.telemetria.dto.TelemetryAuthRequestDTO;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -35,9 +37,12 @@ public class TelemetryApplicationService {
     private String cachedToken;
     private LocalDateTime tokenExpiry;
 
+    private static final String API_ANA_TELEMETRY = "API Telemetria ANA";
+
     private final TelemetriaClient client;
     private final TelemetryDomainService domainService;
     private final TelemetryMapper mapper;
+    private final ControlReadingDataRepository controlReadingDataRepository;
 
     public List<ControlReadingImportDTO> getReadings(TelemetryRequestDTO request) {
         String intervention = request.getDeviceIdentifier();
@@ -50,7 +55,13 @@ public class TelemetryApplicationService {
 
             log.info("[TELEMETRY] processando leituras de telemetria para o device: {}", intervention);
             List<TelemetryResponseDTO> readingsRawData = TelemetryDataParser.parse(csvData);
-            List<TelemetryResponseDTO> processedReadings = domainService.applyFlowRateRules(readingsRawData);
+
+            BigDecimal initialAccumulatedHours = controlReadingDataRepository
+                    .findLastReadingValueByTagAndCreatedBy(intervention, API_ANA_TELEMETRY)
+                    .orElse(BigDecimal.ZERO);
+            log.info("[TELEMETRY] horas acumuladas iniciais para {}: {}", intervention, initialAccumulatedHours);
+
+            List<TelemetryResponseDTO> processedReadings = domainService.applyFlowRateRules(readingsRawData, initialAccumulatedHours);
             log.info("[TELEMETRY] leituras de telemetria para o device: {} retornadas com sucesso.", intervention);
 
             return mapper.toImportDTOList(processedReadings);
