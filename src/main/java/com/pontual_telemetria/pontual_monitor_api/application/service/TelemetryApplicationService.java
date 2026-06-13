@@ -46,8 +46,8 @@ public class TelemetryApplicationService {
 
     public List<ControlReadingImportDTO> getReadings(TelemetryRequestDTO request) {
         String intervention = request.getDeviceIdentifier();
-        String startDate = resolveStartDate(request.getStartDate());
-        String endDate = resolveEndDate(request.getStartDate());
+        String startDate = request.getStartDate().toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        String endDate = request.getEndDate().toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
         try {
             String authorizationHeader = String.format("Bearer %s", getAccessToken());
@@ -79,20 +79,5 @@ public class TelemetryApplicationService {
             tokenExpiry = LocalDateTime.now().plusMinutes(tokenTtlMinutes);
         }
         return cachedToken;
-    }
-
-    private String resolveStartDate(LocalDateTime startDate) {
-        LocalDateTime ninetyDaysAgo = LocalDateTime.now().minusDays(90);
-        LocalDateTime resolved = startDate.isBefore(ninetyDaysAgo) ? ninetyDaysAgo : startDate;
-        return resolved.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-    }
-
-    private String resolveEndDate(LocalDateTime startDate) {
-        LocalDateTime ninetyDaysAgo = LocalDateTime.now().minusDays(90);
-        LocalDateTime startDateResolved = startDate.isBefore(ninetyDaysAgo) ? ninetyDaysAgo : startDate;
-        LocalDateTime endDate = startDateResolved.plusDays(90);
-        LocalDateTime today = LocalDateTime.now();
-        LocalDateTime resolved = endDate.isAfter(today) ? today : endDate;
-        return resolved.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
     }
 }

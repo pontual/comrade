@@ -13,4 +13,6 @@ public interface OperationSummaryProjection {
     LocalDate getLast_read();
     BigDecimal getMaximum_flow_rate();
     BigDecimal getUtilization();
+    Boolean getIs_fonte_dados_api_ana();
+    String getStatus();
 }
