@@ -29,6 +29,18 @@ public interface ControlReadingDataRepository extends JpaRepository<ControlReadi
     );
 
     @Query("""
+        select r.dtReading
+        from ControlReading r
+        where r.tag = :tag
+            and r.dtReading between :start and :end
+        """)
+    List<LocalDateTime> findExistingInstantsByTagInRange(
+            @Param("tag") String tag,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    @Query("""
         select r.readingValue
         from ControlReading r
         where r.tag = :tag

@@ -3,6 +3,7 @@ package com.pontual_telemetria.pontual_monitor_api.domain.service;
 import com.pontual_telemetria.pontual_monitor_api.application.service.DailyCalculatedDomainService;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrant;
 import com.pontual_telemetria.pontual_monitor_api.domain.model.regulatory.UsageGrantMonthly;
+import com.pontual_telemetria.pontual_monitor_api.domain.model.view.MvDailyAgg;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.MVDailyAggRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.MVMonthlyAggRepository;
 import com.pontual_telemetria.pontual_monitor_api.domain.repository.UsageGrantRepository;
@@ -79,6 +80,14 @@ public class DashboardDomainService {
         var rows = mvDailyAggRepository.findDailyAggByYear(externalId, year);
         if (rows == null || rows.isEmpty()) return List.of();
 
+        // mv_daily_agg computes calculatedDailyMeasure as daily_pulse_diff * inst_flow_rate,
+        // which is wrong for API sources — the correct volume is calculated_volume sent by the API.
+        // Build a lookup from vw_daily_calculated_final to override API-source days.
+        Map<LocalDate, DailyCalculatedItemDTO> apiDayMap = dailyCalculatedDomainService
+                .getCalculated(externalId).stream()
+                .filter(d -> "API".equals(d.source()) && d.day().getYear() == year)
+                .collect(Collectors.toMap(DailyCalculatedItemDTO::day, d -> d, (a, b) -> a));
+
         Map<Integer, BigDecimal> hoursDayByMonth = findLatestUsageGrant(externalId)
                 .map(ug -> ug.getMonthlyGrants().stream()
                         .filter(Objects::nonNull)
@@ -94,14 +103,32 @@ public class DashboardDomainService {
             BigDecimal maxDailyOpHours =
                     hoursDayByMonth.getOrDefault(YearMonth.from(day).getMonthValue(), BigDecimal.ZERO);
 
+            DailyCalculatedItemDTO apiDay = apiDayMap.get(day);
+
+            BigDecimal calculatedDailyMeasure;
+            BigDecimal averageDailyFlowRate;
+            if (apiDay != null) {
+                calculatedDailyMeasure = apiDay.effVolume() == null
+                        ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                        : apiDay.effVolume().setScale(3, RoundingMode.HALF_UP);
+                averageDailyFlowRate = r.getInstFlowRate() == null
+                        ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                        : r.getInstFlowRate().setScale(3, RoundingMode.HALF_UP);
+            } else {
+                calculatedDailyMeasure = r.getCalculatedDailyMeasure() == null
+                        ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                        : r.getCalculatedDailyMeasure().setScale(3, RoundingMode.HALF_UP);
+                averageDailyFlowRate = null;
+            }
+
             out.add(new DailyVolumeDTO(
                     day.toString(),
-                    r.getDailyPulseDiff()         == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getDailyPulseDiff().setScale(3, RoundingMode.HALF_UP),
-                    r.getDailyOpHours()           == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getDailyOpHours().setScale(3, RoundingMode.HALF_UP),
-                    maxDailyOpHours               == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : maxDailyOpHours.setScale(3, RoundingMode.HALF_UP),
-                    r.getInstFlowRate()           == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getInstFlowRate().setScale(3, RoundingMode.HALF_UP),
-                    r.getCalculatedDailyMeasure() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getCalculatedDailyMeasure().setScale(3, RoundingMode.HALF_UP),
-                    null
+                    r.getDailyPulseDiff() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getDailyPulseDiff().setScale(3, RoundingMode.HALF_UP),
+                    r.getDailyOpHours()   == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getDailyOpHours().setScale(3, RoundingMode.HALF_UP),
+                    maxDailyOpHours       == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : maxDailyOpHours.setScale(3, RoundingMode.HALF_UP),
+                    r.getInstFlowRate()   == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.getInstFlowRate().setScale(3, RoundingMode.HALF_UP),
+                    calculatedDailyMeasure,
+                    averageDailyFlowRate
             ));
         }
         return out;
@@ -266,6 +293,13 @@ public class DashboardDomainService {
         List<DailyCalculatedItemDTO> rows = dailyCalculatedDomainService.getCalculated(externalId);
         if (rows == null || rows.isEmpty()) return List.of();
 
+        // vw_daily_calculated_final computes mv_daily_hours as the intra-day delta,
+        // which is always 0 for API sources that send a single reading at midnight.
+        // daily_pulse_diff from mv_daily_agg uses a LAG across days and is the correct measure.
+        Map<LocalDate, BigDecimal> pulseDiffByDay = mvDailyAggRepository
+                .findAllById_ExternalId(externalId).stream()
+                .collect(Collectors.toMap(m -> m.getId().getDay(), MvDailyAgg::getDailyPulseDiff, (a, b) -> a));
+
         Map<Integer, BigDecimal> hoursDayByMonth = findLatestUsageGrant(externalId)
                 .map(ug -> ug.getMonthlyGrants().stream()
                         .collect(Collectors.toMap(
@@ -295,11 +329,23 @@ public class DashboardDomainService {
                     ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
                     : r.effVolume().setScale(3, RoundingMode.HALF_UP);
 
+            BigDecimal dailyMeasure;
+            if ("API".equals(r.source())) {
+                BigDecimal pulseDiff = pulseDiffByDay.get(day);
+                dailyMeasure = pulseDiff == null
+                        ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                        : pulseDiff.setScale(3, RoundingMode.HALF_UP);
+            } else {
+                dailyMeasure = r.mvDailyHours() == null
+                        ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                        : r.mvDailyHours().setScale(3, RoundingMode.HALF_UP);
+            }
+
             BigDecimal averageDailyFlowRate = getAverageDailyFlowRate(r, effDailyHours, effVolume);
 
             out.add(new DailyVolumeDTO(
                     day.toString(),
-                    r.mvDailyHours() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.mvDailyHours().setScale(3, RoundingMode.HALF_UP),
+                    dailyMeasure,
                     effDailyHours,
                     maxDailyOpHours == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : maxDailyOpHours.setScale(3, RoundingMode.HALF_UP),
                     r.instFlowRate() == null ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP) : r.instFlowRate().setScale(3, RoundingMode.HALF_UP),
@@ -312,9 +358,14 @@ public class DashboardDomainService {
 
     private static BigDecimal getAverageDailyFlowRate(DailyCalculatedItemDTO r, BigDecimal effDailyHours, BigDecimal effVolume) {
         if ("API".equals(r.source())) {
-            return effDailyHours.signum() == 0
-                    ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
-                    : effVolume.divide(effDailyHours, 3, RoundingMode.HALF_UP);
+            if (effDailyHours.signum() == 0) {
+                // API sources with a single midnight reading have no intra-day horímetro delta,
+                // so hours are always 0. Fall back to instFlowRate as the reference rate.
+                return r.instFlowRate() == null
+                        ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                        : r.instFlowRate().setScale(3, RoundingMode.HALF_UP);
+            }
+            return effVolume.divide(effDailyHours, 3, RoundingMode.HALF_UP);
         }
         return r.instFlowRate() == null
                 ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)

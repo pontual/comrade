@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -62,9 +64,23 @@ public class TelemetryApplicationService {
             log.info("[TELEMETRY] horas acumuladas iniciais para {}: {}", intervention, initialAccumulatedHours);
 
             List<TelemetryResponseDTO> processedReadings = domainService.applyFlowRateRules(readingsRawData, initialAccumulatedHours);
-            log.info("[TELEMETRY] leituras de telemetria para o device: {} retornadas com sucesso.", intervention);
 
-            return mapper.toImportDTOList(processedReadings);
+            Set<LocalDateTime> existingInstants = new HashSet<>(
+                    controlReadingDataRepository.findExistingInstantsByTagInRange(
+                            intervention,
+                            request.getStartDate().toLocalDateTime(),
+                            request.getEndDate().toLocalDateTime()
+                    )
+            );
+
+            List<ControlReadingImportDTO> newReadings = mapper.toImportDTOList(processedReadings).stream()
+                    .filter(dto -> !existingInstants.contains(dto.getDtReading()))
+                    .toList();
+
+            log.info("[TELEMETRY] leituras de telemetria para o device: {} retornadas com sucesso. Novas: {}, já existentes filtradas: {}.",
+                    intervention, newReadings.size(), existingInstants.size());
+
+            return newReadings;
         } catch (Exception e) {
             log.error("[TELEMETRY] Erro ao processar leituras de telemetria para a intervencao: {}. ErroMessage: {}", intervention, e.getMessage());
             throw new RuntimeException("Erro ao processar leituras de telemetria", e);
