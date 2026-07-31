@@ -51,6 +51,7 @@ public class ControlDomainService {
                 .deviceId(controlDTO.getDeviceId())
                 .dtDeviceActivate(controlDTO.getDtDeviceActivate())
                 .active(controlDTO.getActive())
+                .isFonteDadosApiAna(controlDTO.getIsFonteDadosApiAna())
                 .build();
 
         controlRepository.save(control);

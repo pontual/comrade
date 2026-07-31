@@ -21,5 +21,5 @@ public class ControlDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<ControlReadingRequestDTO> readings;
-    private boolean isFonteDadosApiAna;
+    private Boolean isFonteDadosApiAna;
 }

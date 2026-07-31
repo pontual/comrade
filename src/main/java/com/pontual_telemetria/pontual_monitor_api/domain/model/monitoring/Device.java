@@ -41,5 +41,5 @@ public class Device {
     private String linkedPatrimony;
 
     @Column(name = "is_fonte_dados_api_ana", nullable = false)
-    private boolean isFonteDadosApiAna;
+    private Boolean isFonteDadosApiAna;
 }

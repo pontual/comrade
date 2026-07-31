@@ -16,5 +16,5 @@ public class DeviceDTO {
     private LocalDateTime createdAt;
     private Boolean active;
     private String linkedPatrimony;
-    private boolean isFonteDadosApiAna;
+    private Boolean isFonteDadosApiAna;
 }

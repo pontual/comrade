@@ -62,5 +62,5 @@ public class Control {
     private List<ControlReading> readings;
 
     @Column(name = "is_fonte_dados_api_ana", nullable = false)
-    private boolean isFonteDadosApiAna;
+    private Boolean isFonteDadosApiAna;
 }
