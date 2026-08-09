@@ -21,4 +21,5 @@ public class ControlReadingRequestDTO {
     private String tag;
     private String average;
     private BigDecimal calculatedVolume;
+    private BigDecimal rawVolume;
 }

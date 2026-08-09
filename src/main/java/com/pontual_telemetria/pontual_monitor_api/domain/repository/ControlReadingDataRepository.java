@@ -45,10 +45,24 @@ public interface ControlReadingDataRepository extends JpaRepository<ControlReadi
         from ControlReading r
         where r.tag = :tag
             and r.createdBy = :createdBy
+            and r.dtReading < :before
         order by r.dtReading desc
         limit 1
         """)
-    Optional<BigDecimal> findLastReadingValueByTagAndCreatedBy(
+    Optional<BigDecimal> findLastReadingValueByTagAndCreatedByBefore(
+            @Param("tag") String tag,
+            @Param("createdBy") String createdBy,
+            @Param("before") LocalDateTime before
+    );
+
+    @Query("""
+        select r
+        from ControlReading r
+        where r.tag = :tag
+            and r.createdBy = :createdBy
+        order by r.dtReading asc
+        """)
+    List<ControlReading> findAllByTagAndCreatedByOrderByDtReadingAsc(
             @Param("tag") String tag,
             @Param("createdBy") String createdBy
     );

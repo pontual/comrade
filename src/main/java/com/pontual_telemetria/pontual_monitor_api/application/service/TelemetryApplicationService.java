@@ -59,7 +59,7 @@ public class TelemetryApplicationService {
             List<TelemetryResponseDTO> readingsRawData = TelemetryDataParser.parse(csvData);
 
             BigDecimal initialAccumulatedHours = controlReadingDataRepository
-                    .findLastReadingValueByTagAndCreatedBy(intervention, API_ANA_TELEMETRY)
+                    .findLastReadingValueByTagAndCreatedByBefore(intervention, API_ANA_TELEMETRY, request.getStartDate().toLocalDateTime())
                     .orElse(BigDecimal.ZERO);
             log.info("[TELEMETRY] horas acumuladas iniciais para {}: {}", intervention, initialAccumulatedHours);
 
