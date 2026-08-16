@@ -93,6 +93,24 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
         AND (ug.end_date IS NULL OR ug.end_date::date > p.start_date)
       ORDER BY ug.external_id, ug.start_date DESC
     ),
+
+    latest_control AS (
+      SELECT DISTINCT ON (c.external_id)
+        c.external_id,
+        c.is_fonte_dados_api_ana
+      FROM sch_monitoring.control c
+      WHERE c.location_id = :locationId
+      ORDER BY c.external_id, c.created_at DESC
+    ),
+
+    latest_reading_status AS (
+      SELECT DISTINCT ON (cr.external_id)
+        cr.external_id,
+        cr.status
+      FROM sch_monitoring.control_reading cr
+      WHERE cr.location_id = :locationId
+      ORDER BY cr.external_id, cr.dt_reading DESC
+    ),
     
     agg AS (
       SELECT
@@ -125,9 +143,13 @@ public interface OperationSummaryRepository extends Repository<UsageGrant, Long>
       lg.maximum_flow_rate AS maximum_flow_rate,
       CASE WHEN a.grant_average_flow > 0
         THEN ROUND(100 * a.average_flow / a.grant_average_flow, 2)
-      END AS utilization
+      END AS utilization,
+      lc.is_fonte_dados_api_ana,
+      lrs.status
     FROM agg a
-    LEFT JOIN latest_grant lg ON lg.external_id = a.external_id
+    LEFT JOIN latest_grant lg  ON lg.external_id  = a.external_id
+    LEFT JOIN latest_control lc ON lc.external_id = a.external_id
+    LEFT JOIN latest_reading_status lrs ON lrs.external_id = a.external_id
     ORDER BY a.external_id
     """, nativeQuery = true)
     List<OperationSummaryProjection> summaryByLocationId(

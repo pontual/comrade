@@ -34,3 +34,6 @@ build/
 
 ### SECRETS ###
 *.properties
+
+### ENV ###
+*.env

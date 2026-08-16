@@ -12,4 +12,6 @@ import java.math.BigDecimal;
 public class MonthlyVolumeDTO {
     private String month;
     private BigDecimal monthlyMeasure;
+    BigDecimal capturedAvgFlowRate;
+    BigDecimal grantedAvgFlowRate;
 }

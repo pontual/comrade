@@ -16,4 +16,6 @@ public class DailyVolumeDTO {
     private BigDecimal maxDailyOperationHours;
     private BigDecimal monthInstantaneousFlowRate;
     private BigDecimal calculatedDailyMeasure;
+    private BigDecimal averageDailyFlowRate;
+    private BigDecimal grantedAvgFlowRate;
 }

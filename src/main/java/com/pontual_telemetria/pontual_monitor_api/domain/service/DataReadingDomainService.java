@@ -2,7 +2,7 @@ package com.pontual_telemetria.pontual_monitor_api.domain.service;
 
 import com.pontual_telemetria.pontual_monitor_api.domain.exception.PontualMonitorException;
 import com.pontual_telemetria.pontual_monitor_api.web.dto.sismetro.DataExtractionResult;
-import com.pontual_telemetria.pontual_monitor_api.web.dto.sismetro.SismetroReadingControl;
+import com.pontual_telemetria.pontual_monitor_api.web.dto.sismetro.ControlReadingImportDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -33,7 +33,7 @@ public class DataReadingDomainService {
             );
         }
 
-        List<SismetroReadingControl> resultList = new ArrayList<>();
+        List<ControlReadingImportDTO> resultList = new ArrayList<>();
 
         try (InputStream is = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(is))
@@ -56,7 +56,7 @@ public class DataReadingDomainService {
                 String tag = getStringValue(row.getCell(7));
                 String average = getStringValue(row.getCell(8));
 
-                SismetroReadingControl readObj = SismetroReadingControl.builder()
+                ControlReadingImportDTO readObj = ControlReadingImportDTO.builder()
                         .id(id)
                         .readingValue(readingValue)
                         .dtReading(stringToDateTime(dtReadingStr))

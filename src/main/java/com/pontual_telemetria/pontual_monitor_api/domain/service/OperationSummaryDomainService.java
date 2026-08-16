@@ -55,6 +55,8 @@ public class OperationSummaryDomainService {
         BigDecimal consumedVolume = p.getVolume_total_operation();
         BigDecimal grantedVolume  = annualGrant.totalVolume();
         BigDecimal grantedDuration = annualGrant.totalDuration();
+        Boolean isTelemetryAna = p.getIs_fonte_dados_api_ana();
+        String status = p.getStatus();
 
         BigDecimal utilization =
                 calculateUtilization(consumedVolume, grantedVolume);
@@ -68,7 +70,9 @@ public class OperationSummaryDomainService {
                 p.getAverage_flow(),
                 p.getLast_read(),
                 p.getMaximum_flow_rate(),
-                utilization
+                utilization,
+                isTelemetryAna,
+                status
         );
     }
 

@@ -21,6 +21,7 @@ public class ControlReadingResponseDTO {
     private String status;
     private String tag;
     private String average;
+    private BigDecimal calculatedVolume;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

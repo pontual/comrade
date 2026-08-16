@@ -16,24 +16,31 @@ import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.Con
 import com.pontual_telemetria.pontual_monitor_api.web.dto.monitoring.control.ControlReadingResponseDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ControlDomainService {
+
+    private static final String API_ANA_TELEMETRY = "API Telemetria ANA";
     private final LocationRepository locationRepository;
     private final ControlRepository controlRepository;
     private final DeviceRepository deviceRepository;
     private final ControlReadingDataRepository controlReadingDataRepository;
     private final ControlReadingMapper controlReadingMapper;
+    private final TelemetryDomainService telemetryDomainService;
     private final ApplicationEventPublisher publisher;
 
     @Transactional
@@ -51,6 +58,7 @@ public class ControlDomainService {
                 .deviceId(controlDTO.getDeviceId())
                 .dtDeviceActivate(controlDTO.getDtDeviceActivate())
                 .active(controlDTO.getActive())
+                .isFonteDadosApiAna(controlDTO.getIsFonteDadosApiAna())
                 .build();
 
         controlRepository.save(control);
@@ -89,6 +97,50 @@ public class ControlDomainService {
                 device.setLinkedPatrimony(null);
             }
             deviceRepository.save(device);
+        }
+    }
+
+    private void recalculateVolumeForTag(String tag) {
+        List<ControlReading> all = controlReadingDataRepository
+                .findAllByTagAndCreatedByOrderByDtReadingAsc(tag, API_ANA_TELEMETRY);
+
+        BigDecimal prevRawVolume = null;
+        List<ControlReading> toUpdate = new ArrayList<>();
+
+        for (ControlReading r : all) {
+            if (r.getRawVolume() == null) {
+                prevRawVolume = null;
+                continue;
+            }
+
+            BigDecimal newCalcVolume = prevRawVolume == null
+                    ? r.getRawVolume()
+                    : r.getRawVolume().subtract(prevRawVolume).max(BigDecimal.ZERO);
+
+            if (r.getCalculatedVolume() == null || newCalcVolume.compareTo(r.getCalculatedVolume()) != 0) {
+                r.setCalculatedVolume(newCalcVolume);
+                r.setUpdatedAt(LocalDateTime.now());
+                toUpdate.add(r);
+            }
+
+            prevRawVolume = r.getRawVolume();
+        }
+
+        if (!toUpdate.isEmpty()) {
+            controlReadingDataRepository.saveAll(toUpdate);
+            log.info("[TELEMETRY] recalculo de volume para tag {}: {} registros atualizados", tag, toUpdate.size());
+        }
+    }
+
+    private void recalculateAccumulatedHoursForTag(String tag) {
+        List<ControlReading> all = controlReadingDataRepository
+                .findAllByTagAndCreatedByOrderByDtReadingAsc(tag, API_ANA_TELEMETRY);
+
+        List<ControlReading> toUpdate = telemetryDomainService.recalculateAccumulatedHours(all);
+
+        if (!toUpdate.isEmpty()) {
+            controlReadingDataRepository.saveAll(toUpdate);
+            log.info("[TELEMETRY] recalculo de horas acumuladas para tag {}: {} registros atualizados", tag, toUpdate.size());
         }
     }
 
@@ -142,11 +194,23 @@ public class ControlDomainService {
                     r.setControl(control);
                     r.setLocation(location);
                     r.setExternalId(location.getExternalId());
+                    r.setCreatedAt(LocalDateTime.now());
                 })
                 .toList();
 
         if (!toInsert.isEmpty()) {
             controlReadingDataRepository.saveAllAndFlush(toInsert);
+
+            Set<String> anaTags = new HashSet<>();
+            for (ControlReading r : toInsert) {
+                if (API_ANA_TELEMETRY.equals(r.getCreatedBy()) && r.getTag() != null) {
+                    anaTags.add(r.getTag());
+                }
+            }
+            for (String tag : anaTags) {
+                recalculateVolumeForTag(tag);
+                recalculateAccumulatedHoursForTag(tag);
+            }
         }
 
         publisher.publishEvent(new RefreshNeededEvent(location.getId()));

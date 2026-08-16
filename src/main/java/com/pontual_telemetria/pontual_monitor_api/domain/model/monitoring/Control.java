@@ -60,4 +60,7 @@ public class Control {
 
     @OneToMany(mappedBy = "control", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ControlReading> readings;
+
+    @Column(name = "is_fonte_dados_api_ana", nullable = false)
+    private Boolean isFonteDadosApiAna;
 }

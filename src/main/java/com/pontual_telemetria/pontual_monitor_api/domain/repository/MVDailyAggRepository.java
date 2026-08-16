@@ -13,6 +13,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public interface MVDailyAggRepository extends JpaRepository<MvDailyAgg, MvDailyAggId> {
 
+    List<MvDailyAgg> findAllById_ExternalId(Long externalId);
+
     @Query(value = """
         SELECT DISTINCT EXTRACT(YEAR FROM day)::int AS y
           FROM sch_view.mv_daily_agg

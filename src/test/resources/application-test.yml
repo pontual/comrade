@@ -17,5 +17,24 @@ security:
       secure: false
       same-site: "Lax"
 
+sgman:
+  client:
+    unit: ${UNIT}
+    url: https://get.api.sismetro.com
+  token:
+    solicitante: ${KEY_SOLICITANTES}
+    patrimonio: ${KEY_PATRIMONIOS}
+
+telemetria:
+  client:
+    url: https://telemetria.snirh.gov.br/api/v1.0
+  credentials:
+    user: pontualtelemetria@gmail.com
+    password: 12345678
+  config:
+    multiplier: 3600
+    token-ttl-minutes: 18
+
 server:
   port: 8081
+

@@ -16,5 +16,5 @@ public class DataExtractionResult {
     private int totalRows;
     private int validRows;
     private int invalidRows;
-    List<SismetroReadingControl> resultList;
+    List<ControlReadingImportDTO> resultList;
 }

@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SismetroReadingControl {
+public class ControlReadingImportDTO {
     private Long id;
     private Double readingValue;
     private LocalDateTime dtReading;
@@ -21,4 +22,8 @@ public class SismetroReadingControl {
     private String status;
     private String tag;
     private String average;
+    private BigDecimal calculatedVolume;
+    private BigDecimal rawVolume;
+    private BigDecimal flowRate;
+    private Integer duration;
 }

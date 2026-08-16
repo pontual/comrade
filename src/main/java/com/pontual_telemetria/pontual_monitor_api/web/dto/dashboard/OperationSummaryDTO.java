@@ -18,4 +18,6 @@ public class OperationSummaryDTO {
     private LocalDate lastRead;
     private BigDecimal maximumFlowRate;
     private BigDecimal utilization;
+    private Boolean isTelemetryAna;
+    private String status;
 }
