@@ -74,6 +74,12 @@ public class ControlReading {
         @Column(name = "raw_volume", precision = 14, scale = 3)
         private BigDecimal rawVolume;
 
+        @Column(name = "flow_rate", precision = 10, scale = 3)
+        private BigDecimal flowRate;
+
+        @Column(name = "duration")
+        private Integer duration;
+
         @Column(name = "created_at", nullable = false)
         private LocalDateTime createdAt;
 

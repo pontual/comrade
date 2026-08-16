@@ -22,4 +22,6 @@ public class ControlReadingRequestDTO {
     private String average;
     private BigDecimal calculatedVolume;
     private BigDecimal rawVolume;
+    private BigDecimal flowRate;
+    private Integer duration;
 }

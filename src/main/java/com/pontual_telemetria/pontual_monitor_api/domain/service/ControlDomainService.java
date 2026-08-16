@@ -40,6 +40,7 @@ public class ControlDomainService {
     private final DeviceRepository deviceRepository;
     private final ControlReadingDataRepository controlReadingDataRepository;
     private final ControlReadingMapper controlReadingMapper;
+    private final TelemetryDomainService telemetryDomainService;
     private final ApplicationEventPublisher publisher;
 
     @Transactional
@@ -131,6 +132,18 @@ public class ControlDomainService {
         }
     }
 
+    private void recalculateAccumulatedHoursForTag(String tag) {
+        List<ControlReading> all = controlReadingDataRepository
+                .findAllByTagAndCreatedByOrderByDtReadingAsc(tag, API_ANA_TELEMETRY);
+
+        List<ControlReading> toUpdate = telemetryDomainService.recalculateAccumulatedHours(all);
+
+        if (!toUpdate.isEmpty()) {
+            controlReadingDataRepository.saveAll(toUpdate);
+            log.info("[TELEMETRY] recalculo de horas acumuladas para tag {}: {} registros atualizados", tag, toUpdate.size());
+        }
+    }
+
     public List<ControlReadingResponseDTO> getReadingDataByLocationId(Long locationId) {
         List<ControlReading> controlReadings = controlReadingDataRepository.findAllByLocationId(locationId);
 
@@ -181,6 +194,7 @@ public class ControlDomainService {
                     r.setControl(control);
                     r.setLocation(location);
                     r.setExternalId(location.getExternalId());
+                    r.setCreatedAt(LocalDateTime.now());
                 })
                 .toList();
 
@@ -195,6 +209,7 @@ public class ControlDomainService {
             }
             for (String tag : anaTags) {
                 recalculateVolumeForTag(tag);
+                recalculateAccumulatedHoursForTag(tag);
             }
         }
 

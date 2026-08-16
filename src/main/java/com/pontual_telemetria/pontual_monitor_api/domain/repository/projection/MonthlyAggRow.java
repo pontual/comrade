@@ -7,4 +7,5 @@ public interface MonthlyAggRow {
     Long getExternalId();
     LocalDate getYm();
     BigDecimal getMonthlyVolume();
+    BigDecimal getMonthlyOpHours();
 }

@@ -60,12 +60,21 @@ public class DashboardDomainService {
         if (rows == null || rows.isEmpty()) return List.of();
 
         return rows.stream()
-                .map(r -> new MonthlyVolumeDTO(
-                        MMYYYY.format(YearMonth.from(r.getYm())),
-                        r.getMonthlyVolume(),
-                        null,
-                        null
-                ))
+                .map(r -> {
+                    BigDecimal monthlyVolume = normalizeValue(r.getMonthlyVolume());
+                    BigDecimal monthlyOpHours = normalizeValue(r.getMonthlyOpHours());
+
+                    BigDecimal capturedAvg = monthlyOpHours.signum() == 0
+                            ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
+                            : monthlyVolume.divide(monthlyOpHours, 3, RoundingMode.HALF_UP);
+
+                    return new MonthlyVolumeDTO(
+                            MMYYYY.format(YearMonth.from(r.getYm())),
+                            r.getMonthlyVolume(),
+                            capturedAvg,
+                            null
+                    );
+                })
                 .toList();
     }
 
@@ -163,27 +172,24 @@ public class DashboardDomainService {
         Map<Integer, BigDecimal> grantedFlowByMonth = resolveGrantedFlowByMonth(externalId);
 
         Map<YearMonth, BigDecimal> volumeByMonth = new TreeMap<>();
-        Map<YearMonth, BigDecimal> flowSumByMonth = new TreeMap<>();
-        Map<YearMonth, Integer> flowCountByMonth = new TreeMap<>();
+        Map<YearMonth, BigDecimal> hoursByMonth = new TreeMap<>();
 
         for (DailyVolumeDTO d : daily) {
             if (d == null) continue;
             YearMonth ym = YearMonth.from(LocalDate.parse(d.getDay()));
 
             volumeByMonth.merge(ym, normalizeValue(d.getCalculatedDailyMeasure()), BigDecimal::add);
-            flowSumByMonth.merge(ym, normalizeValue(d.getAverageDailyFlowRate()), BigDecimal::add);
-            flowCountByMonth.merge(ym, 1, Integer::sum);
+            hoursByMonth.merge(ym, normalizeValue(d.getDailyOperationHours()), BigDecimal::add);
         }
 
         return volumeByMonth.entrySet().stream()
                 .map(e -> {
                     YearMonth ym = e.getKey();
-                    int days = flowCountByMonth.getOrDefault(ym, 0);
+                    BigDecimal monthHours = hoursByMonth.getOrDefault(ym, BigDecimal.ZERO);
 
-                    BigDecimal capturedAvg = days == 0
+                    BigDecimal capturedAvg = monthHours.signum() == 0
                             ? BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP)
-                            : flowSumByMonth.getOrDefault(ym, BigDecimal.ZERO)
-                            .divide(BigDecimal.valueOf(days), 3, RoundingMode.HALF_UP);
+                            : e.getValue().divide(monthHours, 3, RoundingMode.HALF_UP);
 
                     BigDecimal grantedAvg = grantedFlowByMonth
                             .getOrDefault(ym.getMonthValue(), BigDecimal.ZERO)
